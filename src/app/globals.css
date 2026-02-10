@@ -1,0 +1,309 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  NORTECH PREMIUM DESIGN SYSTEM - 2026 EDITION
+  ============================================
+  Focus: Depth, Glassmorphism, and Ultra-Refined Interactions.
+*/
+
+:root {
+  /* Ultra-Clean Light Mode */
+  --background: 210 20% 98%;
+  --foreground: 224 71.4% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71.4% 4.1%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71.4% 4.1%;
+  --primary: 221.2 83.2% 53.3%;
+  /* Professional Electric Blue */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 88%;
+  --input: 214.3 31.8% 88%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 1rem;
+
+  --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(214, 214, 214, 0.3);
+}
+
+.dark {
+  /* High-Contrast Deep Space Dark Mode with Vibrant Accents */
+  --background: 0 0% 2%;
+  --foreground: 210 40% 98%;
+  --card: 0 0% 5%;
+  --card-foreground: 210 40% 98%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217 91% 60%;
+  /* Electric Blue - más vibrante */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217.2 32.6% 12%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 12%;
+  --muted-foreground: 0 0% 85%;
+  --accent: 262 83% 58%;
+  /* Purple accent - más vibrante */
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 60%;
+  /* Bright red */
+  --destructive-foreground: 0 0% 100%;
+  --border: 217.2 32.6% 18%;
+  /* Bordes ligeramente más claros */
+  --input: 217.2 32.6% 15%;
+  --ring: 217 91% 60%;
+
+  /* Colores de acento por categoría */
+  --color-finance: 142 76% 36%;
+  /* Green */
+  --color-sales: 217 91% 60%;
+  /* Blue */
+  --color-inventory: 38 92% 50%;
+  /* Orange */
+  --color-clients: 262 83% 58%;
+  /* Purple */
+  --color-success: 142 76% 36%;
+  /* Green */
+  --color-warning: 38 92% 50%;
+  /* Orange */
+  --color-danger: 0 84% 60%;
+  /* Red */
+
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  --glass-bg: rgba(10, 10, 10, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply min-h-screen bg-background text-foreground transition-all duration-500 ease-in-out font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+
+  /* 2026 PREMIUM CARD - Multi-layered Depth */
+  .card-premium {
+    @apply bg-card border border-border rounded-[var(--radius)] transition-all duration-500;
+    box-shadow: var(--shadow-premium);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-premium::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .card-premium:hover {
+    @apply -translate-y-1 border-primary/30;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  /* 2026 STELLAR BUTTONS */
+  .btn-primary {
+    @apply relative px-6 py-3 bg-primary text-primary-foreground font-bold rounded-full overflow-hidden transition-all duration-300;
+    @apply active:scale-[0.97] flex items-center justify-center gap-2;
+    background-image: linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-primary:hover {
+    @apply brightness-110 -translate-y-0.5 shadow-xl;
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-secondary text-secondary-foreground font-semibold rounded-full border border-border transition-all duration-300;
+    @apply hover:bg-muted hover:shadow-lg active:scale-[0.97] backdrop-blur-sm;
+  }
+
+  .btn-premium-ghost {
+    @apply flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-border bg-card/30 backdrop-blur-md text-foreground font-black text-[10px] uppercase tracking-widest transition-all duration-300;
+    @apply hover:border-primary/50 hover:bg-primary/5 hover:text-primary hover:shadow-xl active:scale-95 shadow-sm;
+  }
+
+  .btn-premium-danger {
+    @apply flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-destructive/20 bg-destructive/5 backdrop-blur-md text-destructive font-black text-[10px] uppercase tracking-widest transition-all duration-300;
+    @apply hover:border-destructive hover:bg-destructive hover:text-white hover:shadow-xl active:scale-95 shadow-sm;
+  }
+
+  /* SIDEBAR REFINEMENT */
+  aside {
+    @apply bg-card/80 backdrop-blur-2xl border-r border-border transition-all duration-300;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-5 py-3.5 text-muted-foreground rounded-2xl transition-all duration-300 font-medium;
+    @apply hover:bg-primary/5 hover:text-primary;
+  }
+
+  .nav-item-active {
+    @apply flex items-center gap-3 px-5 py-3.5 bg-primary text-primary-foreground font-bold rounded-2xl shadow-lg;
+    box-shadow: 0 10px 20px -5px hsl(var(--primary) / 0.4);
+    animation: slideIn 0.4s ease-out;
+  }
+
+  .dark .nav-item-active {
+    @apply bg-white text-zinc-950 shadow-white/10;
+  }
+
+  /* 2026 PREMIUM TABLE */
+  .table-dark {
+    @apply w-full text-left border-collapse;
+  }
+
+  .table-dark thead {
+    @apply border-b border-border bg-muted/30;
+  }
+
+  .table-dark th {
+    @apply px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground;
+  }
+
+  .table-dark tbody tr {
+    @apply border-b border-border/50 transition-colors duration-200;
+  }
+
+  .table-dark tbody tr:hover {
+    @apply bg-primary/[0.02] dark:bg-white/[0.02];
+  }
+
+  .table-dark td {
+    @apply px-6 py-4 align-middle;
+  }
+
+  /* INPUTS FROM THE FUTURE */
+  .input-dark {
+    @apply w-full px-5 py-3 bg-background/50 border border-border rounded-2xl text-foreground transition-all duration-300;
+    @apply backdrop-blur-md focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50;
+    @apply placeholder:text-muted-foreground/50;
+  }
+
+  /* TYPOGRAPHY OVERRIDES */
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight font-extrabold;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60;
+  }
+}
+
+@layer utilities {
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 0% 0%, hsl(var(--primary) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(var(--primary) / 0.05) 0px, transparent 50%);
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-xl bg-background/50 border border-white/10;
+  }
+
+  /* Category Colors */
+  .text-finance {
+    color: hsl(var(--color-finance));
+  }
+
+  .bg-finance {
+    background-color: hsl(var(--color-finance));
+  }
+
+  .border-finance {
+    border-color: hsl(var(--color-finance));
+  }
+
+  .text-sales {
+    color: hsl(var(--color-sales));
+  }
+
+  .bg-sales {
+    background-color: hsl(var(--color-sales));
+  }
+
+  .border-sales {
+    border-color: hsl(var(--color-sales));
+  }
+
+  .text-inventory {
+    color: hsl(var(--color-inventory));
+  }
+
+  .bg-inventory {
+    background-color: hsl(var(--color-inventory));
+  }
+
+  .border-inventory {
+    border-color: hsl(var(--color-inventory));
+  }
+
+  .text-clients {
+    color: hsl(var(--color-clients));
+  }
+
+  .bg-clients {
+    background-color: hsl(var(--color-clients));
+  }
+
+  .border-clients {
+    border-color: hsl(var(--color-clients));
+  }
+
+  .text-success {
+    color: hsl(var(--color-success));
+  }
+
+  .bg-success {
+    background-color: hsl(var(--color-success));
+  }
+
+  .text-warning {
+    color: hsl(var(--color-warning));
+  }
+
+  .bg-warning {
+    background-color: hsl(var(--color-warning));
+  }
+
+  .text-danger {
+    color: hsl(var(--color-danger));
+  }
+
+  .bg-danger {
+    background-color: hsl(var(--color-danger));
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

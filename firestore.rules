@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check for specific roles
+    function hasRole(role) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isSuperAdmin() {
+      return hasRole('SUPERADMIN');
+    }
+
+    // Default: Deny everything NOT explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Users Collection
+    // Each user can read their own profile
+    // Only SUPERADMIN can manage all users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // Allow initial creation during sign-up
+      allow update: if isSuperAdmin() || request.auth.uid == userId;
+      allow delete: if isSuperAdmin();
+    }
+
+    // CRM: Clients & Suppliers
+    // Sales, Admin, SuperAdmin can read/write
+    match /clients/{clientId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Broadly allow authenticated users to manage clients for now
+    }
+    
+    match /suppliers/{supplierId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Products
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Quotations (Cotizaciones)
+    match /quotations/{quoteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isSuperAdmin() || hasRole('ADMIN');
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if isAuthenticated(); // Allow system to write notifications
+    }
+  }
+}

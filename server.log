@@ -1,0 +1,383 @@
+
+> nortech-erp@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+ ⚠ Port 3001 is in use, trying 3002 instead.
+   ▲ Next.js 14.1.0
+   - Local:        http://localhost:3002
+   - Environments: .env.local
+
+ ✓ Ready in 1513ms
+ ○ Compiling /dashboard/admin/users ...
+ ✓ Compiled /dashboard/admin/users in 2.5s (864 modules)
+ ✓ Compiled in 255ms (352 modules)
+ ○ Compiling /not-found ...
+ ✓ Compiled / in 2.7s (860 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1095ms (916 modules)
+ ✓ Compiled in 871ms (481 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/cache/webpack/client-development/1.pack.gz_' -> '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/cache/webpack/client-development/1.pack.gz'
+ ✓ Compiled in 388ms (481 modules)
+ ✓ Compiled in 1711ms (925 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/cache/webpack/server-development/8.pack.gz_' -> '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/cache/webpack/server-development/8.pack.gz'
+ ✓ Compiled in 1145ms (925 modules)
+ ✓ Compiled in 1223ms (925 modules)
+ ✓ Compiled in 1473ms (925 modules)
+ ✓ Compiled in 816ms (481 modules)
+ ✓ Compiled in 885ms (481 modules)
+ ○ Compiling /not-found ...
+ ✓ Compiled /not-found in 1534ms (930 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1339ms (1029 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving './vendor-chunks/zustand' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/vendor-chunks/zustand.js', but to 'Error: Can't resolve './vendor-chunks/zustand' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ./vendor-chunks/zustand (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/vendor-chunks/zustand.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/webpack-runtime.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/webpack-runtime.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/not-found.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/not-found.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+ ✓ Compiled in 3.8s (932 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+ ✓ Compiled in 1116ms (488 modules)
+ ✓ Compiled in 781ms (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+ ✓ Compiled in 2.7s (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+ ✓ Compiled in 1129ms (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ✓ Compiled in 2.7s (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+ ✓ Compiled in 3.1s (488 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+ ✓ Compiled in 1584ms (488 modules)
+ ✓ Compiled in 231ms (488 modules)
+ ✓ Compiled in 582ms (932 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ✓ Compiled /dashboard in 230ms (550 modules)
+ ✓ Compiled /dashboard/admin/activity in 385ms (1057 modules)
+ ✓ Compiled /not-found in 119ms (1048 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 464ms (1029 modules)
+ ✓ Compiled in 171ms (1043 modules)
+ ✓ Compiled /dashboard/activity in 262ms (1057 modules)
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/dashboard/admin/users/page' in /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js', but to 'Error: Can't resolve '../../../../.next/server/app/dashboard/admin/users/page' in '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/dashboard/admin/users/page (expected /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js)
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/require.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/worker.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-route-loader/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at file /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w>  at resolve commonjs /Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/node_modules/next/dist/build/webpack/loaders/next-barrel-loader.js
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/Users/robertomejia/Library/Mobile Documents/com~apple~CloudDocs/north/.next/server/app/dashboard/admin/users/page.js'
+ ✓ Compiled in 464ms (1000 modules)
+ ✓ Compiled in 114ms (1000 modules)
+ ✓ Compiled /dashboard/admin/users in 122ms (567 modules)
+ ✓ Compiled /not-found in 94ms (1066 modules)
+ ✓ Compiled in 470ms (976 modules)
+ ✓ Compiled in 272ms (990 modules)
+ ✓ Compiled in 215ms (481 modules)
+ ✓ Compiled in 135ms (481 modules)
+ ✓ Compiled in 146ms (481 modules)
+ ✓ Compiled /dashboard/users in 341ms (1061 modules)
+ ✓ Compiled /dashboard/sales/quotes in 259ms (1065 modules)
+ ✓ Compiled in 349ms (1073 modules)
+ ✓ Compiled in 237ms (503 modules)
+ ✓ Compiled in 102ms (503 modules)
+ ○ Compiling /dashboard/sales/quotes/[id] ...
+ ✓ Compiled /dashboard/sales/quotes/[id] in 587ms (1073 modules)
+ ○ Compiling /dashboard/sales/quotes/new ...
+ ✓ Compiled /dashboard/sales/quotes/new in 2s (1556 modules)
+ ✓ Compiled /not-found in 401ms (1561 modules)
+ ✓ Compiled in 458ms (1575 modules)
+ ✓ Compiled in 529ms (1570 modules)
+ ✓ Compiled in 327ms (1570 modules)
+ ✓ Compiled /not-found in 286ms (1561 modules)
+ ○ Compiling /dashboard/finance ...
+ ✓ Compiled /dashboard/finance in 2.7s (2495 modules)
+ ✓ Compiled in 2.3s (2497 modules)
+ ✓ Compiled in 628ms (2497 modules)
+ ✓ Compiled in 434ms (2497 modules)
+ ✓ Compiled in 410ms (2497 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 2.7s (1318 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 503ms (1274 modules)
+ ✓ Compiled /dashboard/activity in 200ms (1273 modules)
+ ✓ Compiled /dashboard/sales/quotes in 80ms (1280 modules)
+ ✓ Compiled in 1183ms (2458 modules)
+ ✓ Compiled /dashboard/sales/quotes/[id] in 286ms (1274 modules)
+ ○ Compiling /dashboard/sales/orders/[id] ...
+ ✓ Compiled /dashboard/sales/orders/[id] in 778ms (2470 modules)
+ ✓ Compiled /dashboard/users in 393ms (584 modules)
+ ✓ Compiled in 732ms (1767 modules)
+ ○ Compiling /dashboard/sales/orders ...
+ ✓ Compiled /dashboard/sales/orders in 793ms (1775 modules)
+ ✓ Compiled /dashboard/sales/products in 196ms (1764 modules)
+ ○ Compiling /dashboard/sales/clients ...
+ ✓ Compiled /dashboard/sales/clients in 509ms (1784 modules)
+ ✓ Compiled /dashboard/sales/suppliers in 170ms (1794 modules)
+ ○ Compiling /dashboard/warehouse ...
+ ✓ Compiled /dashboard/warehouse in 775ms (1809 modules)
+ ✓ Compiled /dashboard/finance in 258ms (1069 modules)
+ ✓ Compiled in 1248ms (2258 modules)
+ ✓ Compiled in 645ms (2258 modules)
+ ✓ Compiled in 536ms (2258 modules)
+ ✓ Compiled in 810ms (2258 modules)
+ ✓ Compiled /dashboard/sales/quotes in 277ms (1050 modules)
+ ✓ Compiled /dashboard/sales/products in 470ms (1056 modules)
+ ✓ Compiled /dashboard in 200ms (1062 modules)
+ ✓ Compiled /dashboard/sales/orders/[id] in 236ms (1059 modules)
+ ✓ Compiled /dashboard/sales/clients in 187ms (1059 modules)
+ ✓ Compiled /dashboard/sales/suppliers in 168ms (598 modules)
+ ○ Compiling /dashboard/sales/suppliers/new ...
+ ✓ Compiled /dashboard/sales/suppliers/new in 963ms (1758 modules)
+ ✓ Compiled in 327ms (1751 modules)
+ ✓ Compiled /not-found in 292ms (1756 modules)
+ ✓ Compiled in 1058ms (1756 modules)
+ ○ Compiling /dashboard/sales/suppliers/[id] ...
+ ✓ Compiled /dashboard/sales/suppliers/[id] in 647ms (1772 modules)
+ ○ Compiling /dashboard/admin/orders/new ...
+ ✓ Compiled /dashboard/admin/orders/new in 985ms (1770 modules)
+ ✓ Compiled /not-found in 321ms (1761 modules)
