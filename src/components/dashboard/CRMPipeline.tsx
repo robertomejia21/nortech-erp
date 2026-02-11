@@ -508,7 +508,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 px-2">
+            <div className="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide">
                 {loading ? (
                     <div className="col-span-full py-20 flex flex-col items-center justify-center gap-4">
                         <Loader2 className="w-10 h-10 animate-spin text-primary" />
