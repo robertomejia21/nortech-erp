@@ -392,57 +392,57 @@ export default function SalesReportsPage() {
                                 <h4 className="text-sm font-semibold text-foreground mb-3">Pipeline ({totalPipeline} oportunidades)</h4>
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-24 text-xs text-muted-foreground">Prospección</div>
-                                        <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-24 text-xs text-muted-foreground font-medium">Prospección</div>
+                                        <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden border border-white/5">
                                             <div
-                                                className="h-full bg-gradient-to-r from-clients to-clients/80 flex items-center justify-end pr-2"
-                                                style={{ width: `${(seller.pipeline.prospecting / totalPipeline) * 100}%` }}
+                                                className="h-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-end pr-2 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-500"
+                                                style={{ width: `${Math.max((seller.pipeline.prospecting / totalPipeline) * 100, 15)}%` }}
                                             >
-                                                <span className="text-xs font-medium text-white">{seller.pipeline.prospecting}</span>
+                                                <span className="text-xs font-bold text-white drop-shadow-md">{seller.pipeline.prospecting}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-24 text-xs text-muted-foreground">Calificado</div>
-                                        <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-24 text-xs text-muted-foreground font-medium">Calificado</div>
+                                        <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden border border-white/5">
                                             <div
-                                                className="h-full bg-gradient-to-r from-sales to-sales/80 flex items-center justify-end pr-2"
-                                                style={{ width: `${(seller.pipeline.qualified / totalPipeline) * 100}%` }}
+                                                className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 flex items-center justify-end pr-2 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-500"
+                                                style={{ width: `${Math.max((seller.pipeline.qualified / totalPipeline) * 100, 15)}%` }}
                                             >
-                                                <span className="text-xs font-medium text-white">{seller.pipeline.qualified}</span>
+                                                <span className="text-xs font-bold text-white drop-shadow-md">{seller.pipeline.qualified}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-24 text-xs text-muted-foreground">Propuesta</div>
-                                        <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-24 text-xs text-muted-foreground font-medium">Propuesta</div>
+                                        <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden border border-white/5">
                                             <div
-                                                className="h-full bg-gradient-to-r from-warning to-warning/80 flex items-center justify-end pr-2"
-                                                style={{ width: `${(seller.pipeline.proposal / totalPipeline) * 100}%` }}
+                                                className="h-full bg-gradient-to-r from-amber-600 to-amber-400 flex items-center justify-end pr-2 shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all duration-500"
+                                                style={{ width: `${Math.max((seller.pipeline.proposal / totalPipeline) * 100, 15)}%` }}
                                             >
-                                                <span className="text-xs font-medium text-white">{seller.pipeline.proposal}</span>
+                                                <span className="text-xs font-bold text-white drop-shadow-md">{seller.pipeline.proposal}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-24 text-xs text-muted-foreground">Negociación</div>
-                                        <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-24 text-xs text-muted-foreground font-medium">Negociación</div>
+                                        <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden border border-white/5">
                                             <div
-                                                className="h-full bg-gradient-to-r from-inventory to-inventory/80 flex items-center justify-end pr-2"
-                                                style={{ width: `${(seller.pipeline.negotiation / totalPipeline) * 100}%` }}
+                                                className="h-full bg-gradient-to-r from-purple-600 to-purple-400 flex items-center justify-end pr-2 shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all duration-500"
+                                                style={{ width: `${Math.max((seller.pipeline.negotiation / totalPipeline) * 100, 15)}%` }}
                                             >
-                                                <span className="text-xs font-medium text-white">{seller.pipeline.negotiation}</span>
+                                                <span className="text-xs font-bold text-white drop-shadow-md">{seller.pipeline.negotiation}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-24 text-xs text-muted-foreground">Cerrados</div>
-                                        <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div className="w-24 text-xs text-muted-foreground font-medium">Cerrados</div>
+                                        <div className="flex-1 h-6 bg-muted/50 rounded-full overflow-hidden border border-white/5">
                                             <div
-                                                className="h-full bg-gradient-to-r from-success to-success/80 flex items-center justify-end pr-2"
-                                                style={{ width: `${(seller.pipeline.closed / totalPipeline) * 100}%` }}
+                                                className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 flex items-center justify-end pr-2 shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-500"
+                                                style={{ width: `${Math.max((seller.pipeline.closed / totalPipeline) * 100, 15)}%` }}
                                             >
-                                                <span className="text-xs font-medium text-white">{seller.pipeline.closed}</span>
+                                                <span className="text-xs font-bold text-white drop-shadow-md">{seller.pipeline.closed}</span>
                                             </div>
                                         </div>
                                     </div>

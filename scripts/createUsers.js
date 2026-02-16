@@ -75,6 +75,12 @@ const usersToCreate = [
         displayName: 'Laura Contabilidad',
         role: 'FINANCE'
     },
+    {
+        email: 'service@northsupplierco.com',
+        password: 'NortechService2024!',
+        displayName: 'Sofia Reséndiz',
+        role: 'ADMIN'
+    },
 ];
 
 async function createUser(userData) {

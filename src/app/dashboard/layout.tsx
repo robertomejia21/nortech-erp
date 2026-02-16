@@ -26,6 +26,7 @@ import {
     Target,
     Menu,
     X,
+    Activity,
     Plus
 } from "lucide-react";
 import NotificationDropdown from "@/components/ui/NotificationDropdown";
@@ -33,16 +34,7 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const navigation = {
     SUPERADMIN: [
-        { name: "Panel Principal", href: "/dashboard", icon: LayoutDashboard },
-        { name: "CRM Pipeline", href: "/dashboard/sales/crm", icon: Target },
-        { name: "Usuarios", href: "/dashboard/users", icon: Users },
-        { name: "Cotizaciones", href: "/dashboard/sales/quotes", icon: FileText },
-        { name: "Ventas / Órdenes", href: "/dashboard/sales/orders", icon: ShoppingBag },
-        { name: "Productos", href: "/dashboard/sales/products", icon: Package },
-        { name: "Clientes", href: "/dashboard/sales/clients", icon: Users },
-        { name: "Proveedores", href: "/dashboard/sales/suppliers", icon: Truck },
-        { name: "Almacén", href: "/dashboard/warehouse", icon: Package },
-        { name: "Finanzas", href: "/dashboard/finance", icon: DollarSign },
+        { name: "Radiografía Corporativa", href: "/dashboard", icon: Activity },
     ],
     ADMIN: [
         { name: "Panel Principal", href: "/dashboard", icon: LayoutDashboard },

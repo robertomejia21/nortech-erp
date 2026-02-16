@@ -2,129 +2,221 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { formatCurrency } from './utils';
+// import { logoBase64 } from './assets/logo'; // Assuming we might have a logo, or we keep the placeholder
 
 export const generateQuotePDF = (quote: any, client: any, user: any) => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
 
-    // --- Header ---
-    doc.setFontSize(20);
-    doc.setTextColor(40, 40, 40);
-    doc.text("COTIZACIÓN", 150, 20);
+    // --- Header Section ---
+    // Logo Placeholder (Triangle shape from image simulation)
+    // doc.addImage(logoBase64, 'PNG', 10, 10, 30, 30); 
+    // Drawing a placeholder logo manually if no image
+    doc.setFillColor(0, 0, 0);
+    doc.triangle(25, 10, 15, 30, 35, 30, 'F');
+    doc.setFillColor(255, 255, 255);
+    doc.triangle(25, 18, 20, 28, 30, 28, 'F');
 
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Folio: ${quote.folio || 'PENDIENTE'}`, 150, 28);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 34);
-
-    // Logo Placeholder
-    doc.setFillColor(230, 230, 230);
-    doc.rect(14, 10, 40, 40, 'F');
-    doc.setFontSize(12);
-    doc.setTextColor(150, 150, 150);
-    doc.text("Logo", 22, 32);
-
-    // Company Info (Nortech) - Mock
-    doc.setFontSize(10);
+    doc.setFontSize(22);
+    doc.setFont('times', 'bold');
     doc.setTextColor(0, 0, 0);
-    doc.text("NORTECH S.A. de C.V.", 60, 20);
+    doc.text("North Tech Supplier S. de R.L. de C.V.", 60, 20);
+
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text("NORTH TECH", 10, 38);
+
+    // Company Info
     doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    doc.text("Av. Industrial 123, Parque Tecnológico", 60, 26);
-    doc.text("Monterrey, NL, CP 64000", 60, 32);
-    doc.text("RFC: NOR000101XYZ", 60, 38);
-    doc.text("Tel: (81) 1234-5678", 60, 44);
+    doc.setFont('helvetica', 'bold');
+    doc.text("RFC: NTS210112JQ7", 110, 30);
+    doc.text("Tel: +52 1 686 222 0781", 60, 44);
+    doc.text("Email: service@northsupplierco.com", 60, 50);
+    doc.setFont('helvetica', 'normal');
+    doc.text("Av. Cañitas #1638, Colonia Zacatecas C.P. 21070, Mexicali,", 80, 40);
+    doc.text("B.C", 130, 44);
 
-    // --- Client Info ---
-    doc.setDrawColor(200, 200, 200);
-    doc.line(14, 55, 196, 55);
-
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text("DATOS DEL CLIENTE", 14, 62);
-
+    // Quote # Box
+    const boxX = 160;
+    const boxY = 48;
+    doc.setFillColor(0, 0, 0);
+    doc.rect(boxX, boxY, 40, 6, 'F'); // Header bg
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
-    doc.text(`Cliente: ${client.razonSocial || 'Por definir'}`, 14, 69);
-    doc.text(`RFC: ${client.rfc || 'XEXX010101000'}`, 14, 75);
-    doc.text(`Atención: ${client.contactName || 'Encargado de Compras'}`, 14, 81);
-    doc.text(`Email: ${client.email || ''}`, 100, 69);
-    doc.text(`Tel: ${client.phone || ''}`, 100, 75);
+    doc.setFont('helvetica', 'bold');
+    doc.text("Quote #", boxX + 12, boxY + 4);
 
-    // --- Items Table ---
-    const tableColumn = ["Cant.", "Descripción", "P. Unit", "Moneda", "Importe"];
-    const tableRows: any[] = [];
+    doc.setFillColor(240, 240, 240);
+    doc.rect(boxX, boxY + 6, 40, 8, 'F'); // Content bg
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.text(`${quote.folio || 'PENDIENTE'}`, boxX + 20, boxY + 11, { align: 'center' });
 
-    quote.items.forEach((item: any) => {
-        const unitPrice = item.unitPrice || 0;
-        const quantity = item.quantity || 0;
-        const totalPrice = item.totalPrice || (unitPrice * quantity);
-        const itemCurrency = item.currency || "MXN";
+    // Greeting
+    doc.setFontSize(11);
+    doc.setFont('times', 'normal');
+    doc.text("Muchas gracias por considerar nuestra compañía para sus cotizaciones.", 105, 65, { align: 'center' });
 
-        const itemData = [
-            quantity,
-            item.productName || item.description || "N/A",
-            formatCurrency(unitPrice, itemCurrency),
-            itemCurrency,
-            formatCurrency(totalPrice, itemCurrency)
-        ];
-        tableRows.push(itemData);
-    });
-
+    // --- Customer Info Grid ---
+    // Using autoTable to replicate the specific black header layout
     autoTable(doc, {
-        head: [tableColumn],
-        body: tableRows,
-        startY: 90,
-        theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185] },
-        styles: { fontSize: 8 },
+        startY: 70,
+        head: [
+            [
+                { content: 'Sold to customer', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: 'Contact', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: 'Address', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } }
+            ]
+        ],
+        body: [
+            [
+                { content: client.razonSocial || 'CLIENTE MOSTRADOR', styles: { halign: 'center' } },
+                { content: client.contactName || '', styles: { halign: 'center' } },
+                { content: `${client.address || 'Mexicali, Baja California'}`, styles: { halign: 'center' } }
+            ]
+        ],
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 1, lineColor: [0, 0, 0], lineWidth: 0.1 },
         columnStyles: {
-            0: { cellWidth: 15 },
-            2: { halign: 'right' },
-            3: { halign: 'center' },
-            4: { halign: 'right' }
+            0: { cellWidth: 70 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 'auto' }
         }
     });
 
-    // --- Totals ---
+    // Second Row of Customer Info
+    autoTable(doc, {
+        // @ts-ignore
+        startY: doc.lastAutoTable.finalY,
+        head: [
+            [
+                { content: 'Phone', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: 'E-mail', colSpan: 2, styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: 'Terms', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: 'Date', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } }
+            ]
+        ],
+        body: [
+            [
+                { content: client.phone || '', styles: { halign: 'center' } },
+                { content: client.email || '', colSpan: 2, styles: { halign: 'center' } },
+                { content: '15 dias', styles: { halign: 'center' } }, // Static as per image, or dynamic if needed
+                { content: new Date().toLocaleDateString(), styles: { halign: 'center' } }
+            ]
+        ],
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 1, lineColor: [0, 0, 0], lineWidth: 0.1 },
+        columnStyles: {
+            0: { cellWidth: 50 },
+            1: { cellWidth: 'auto' }, // Email spans
+            3: { cellWidth: 30 },
+            4: { cellWidth: 30 }
+        }
+    });
+
+    // --- Items Table ---
+    const itemsBody = quote.items.map((item: any, index: number) => [
+        index + 1,
+        item.quantity,
+        item.partNumber || 'N/A', // Assuming partNumber exists, else N/A
+        item.productName || item.description,
+        formatCurrency(item.unitPrice),
+        formatCurrency(item.total || (item.unitPrice * item.quantity))
+    ]);
+
+    // Fill empty rows to make it look like the sheet
+    /*
+    while (itemsBody.length < 5) {
+        itemsBody.push(['', '', '', '', '', '']);
+    }
+    */
+
+    autoTable(doc, {
+        // @ts-ignore
+        startY: doc.lastAutoTable.finalY + 5,
+        head: [['LN', 'QTY', 'PN', 'DESCRIPTION', 'UNIT PRICE', 'TOTAL']],
+        body: itemsBody,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+        styles: { fontSize: 9, cellPadding: 2, lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
+        columnStyles: {
+            0: { cellWidth: 15, halign: 'center' },
+            1: { cellWidth: 20, halign: 'center' },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 'auto' },
+            4: { cellWidth: 30, halign: 'right' },
+            5: { cellWidth: 30, halign: 'right' }
+        }
+    });
+
+    // --- Footer Section ---
     // @ts-ignore
-    const finalY = doc.lastAutoTable.finalY + 10;
-    const quoteCurrency = quote.financials.currency || "MXN";
+    let yPos = doc.lastAutoTable.finalY + 10;
 
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-
-    // Show Exchange Rate if mixed
-    if (quote.financials.exchangeRate && quote.financials.exchangeRate !== 1) {
-        doc.text(`T.C. Aplicado: 1 USD = ${quote.financials.exchangeRate} MXN`, 14, finalY);
+    // Check for page break
+    if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
     }
 
-    doc.setTextColor(0, 0, 0);
-    doc.text("Subtotal:", 140, finalY);
-    doc.text(formatCurrency(quote.financials.subtotal, quoteCurrency), 196, finalY, { align: 'right' });
+    const leftColX = 14;
+    const rightColX = 140;
 
-    doc.text(`IVA (${(quote.financials.taxRate * 100).toFixed(0)}%):`, 140, finalY + 6);
-    doc.text(formatCurrency(quote.financials.taxAmount, quoteCurrency), 196, finalY + 6, { align: 'right' });
+    // Conditions Table (Left)
+    autoTable(doc, {
+        startY: yPos,
+        margin: { left: 14 },
+        tableWidth: 100, // Half page width roughly
+        head: [[{ content: 'Condiciones', styles: { halign: 'center', fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } }]],
+        body: [
+            ['Precios considerando entrega en planta'],
+            [{ content: 'COTIZACION VALIDA POR 15 DIAS', styles: { textColor: [255, 0, 0], fontStyle: 'bold' } }],
+            ['moneda: pesos mexicanos'],
+            [{ content: 'Entrega: ' + (quote.deliveryTime || '3-5') + ' dias habiles', styles: { textColor: [255, 0, 0] } }]
+        ],
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1 }
+    });
 
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Total (${quoteCurrency}):`, 140, finalY + 14);
-    doc.text(formatCurrency(quote.financials.total, quoteCurrency), 196, finalY + 14, { align: 'right' });
+    // Totals Table (Right)
+    // We manually draw the black background for the totals
+    const financials = quote.financials || { subtotal: 0, taxAmount: 0, total: 0 };
 
-    // --- Footer / Terms ---
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const termsY = finalY + 30;
-    doc.text("Términos y Condiciones:", 14, termsY);
+    // Subtotal
+    doc.setFillColor(0, 0, 0);
+    // doc.rect(rightColX, yPos, 60, 24, 'F'); // Background block
+
+    // Using autoTable for totals to align perfectly
+    autoTable(doc, {
+        startY: yPos + 18, // Align bottom of totals with bottom of conditions roughly? No, right side.
+        margin: { left: rightColX },
+        tableWidth: 60,
+        body: [
+            [
+                { content: 'Subtotal', styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: formatCurrency(financials.subtotal), styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], halign: 'right', fontStyle: 'bold' } }
+            ],
+            [
+                { content: 'Iva 8%', styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: formatCurrency(financials.taxAmount), styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], halign: 'right', fontStyle: 'bold' } }
+            ],
+            [
+                { content: 'Total', styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' } },
+                { content: formatCurrency(financials.total), styles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], halign: 'right', fontStyle: 'bold' } }
+            ]
+        ],
+        theme: 'plain', // No borders, just bg
+        styles: { fontSize: 12, cellPadding: 2 }
+    });
+
+    // --- Footer Notes ---
+    // @ts-ignore
+    const finalY = doc.lastAutoTable.finalY + 10;
+
     doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-
-    const terms = quote.notes || "Precios sujetos a cambio sin previo aviso. Tiempo de entrega estimado: 3-5 días hábiles.";
-    const splitTerms = doc.splitTextToSize(terms, 180);
-    doc.text(splitTerms, 14, termsY + 6);
-
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generado por: ${user.email} - Nortech ERP System`, 105, 290, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.text("NOTAS: Se necesita PO para procesar, después de que PO esta liberado no hay cancelación.", 14, finalY + 10);
 
     // Save
     doc.save(`Cotizacion_${quote.folio || 'Draft'}.pdf`);

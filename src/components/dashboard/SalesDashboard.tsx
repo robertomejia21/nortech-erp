@@ -20,23 +20,38 @@ import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { db } from "@/lib/firebase";
 
+import { doc, getDoc, collection, query, where, getCountFromServer, getDocs } from "firebase/firestore";
+
 export default function SalesDashboard() {
     const { user } = useAuthStore();
     const [stats, setStats] = useState({
-        monthlySales: 135200, // En un futuro esto vendrá de coleccion 'orders'
+        monthlySales: 135200,
         monthlyGoal: 150000,
         pendingQuotes: 18,
         conversionRate: 42,
-        activeOrders: 12
+        activeOrders: 12,
+        leadCounts: { leads: 0, quotes: 0, negotiation: 0 }
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
             if (!user?.uid) return;
-            try {
-                const { doc, getDoc, collection, query, where, getCountFromServer, getDocs } = await import("firebase/firestore");
 
+            // OPTIMIZATION: Load from cache first
+            const cacheKey = `sales_stats_${user.uid}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    setStats(parsed);
+                    setLoading(false); // Show cached data immediately
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+
+            try {
                 // Fetch User Meta (Goal)
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 let monthlyGoal = 150000;
@@ -61,17 +76,23 @@ export default function SalesDashboard() {
 
                 const leads = leadsSnap.docs.map(d => d.data() as any);
 
-                setStats(prev => ({
-                    ...prev,
+                const newStats = {
+                    monthlySales: 135200, // TODO: Calculate from orders
                     monthlyGoal,
                     pendingQuotes: pendingSnap.data().count,
+                    conversionRate: 42, // TODO: Calculate real rate
                     activeOrders: totalSnap.data().count,
                     leadCounts: {
                         leads: leads.filter((l: any) => l.status === 'leads').length,
                         quotes: leads.filter((l: any) => l.status === 'quotes').length,
                         negotiation: leads.filter((l: any) => l.status === 'negotiation').length,
                     }
-                }));
+                };
+
+                setStats(newStats);
+
+                // Update cache
+                localStorage.setItem(cacheKey, JSON.stringify(newStats));
 
             } catch (error) {
                 console.error("Error fetching dashboard stats:", error);
@@ -85,6 +106,7 @@ export default function SalesDashboard() {
 
     const remaining = stats.monthlyGoal - stats.monthlySales;
     const isGoalReached = remaining <= 0;
+
 
     if (loading) {
         return (

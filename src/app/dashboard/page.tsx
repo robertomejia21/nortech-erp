@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import SalesDashboard from "@/components/dashboard/SalesDashboard";
+import SuperAdminDashboard from "@/components/dashboard/SuperAdminDashboard";
 
 const stats = [
     {
@@ -95,12 +96,33 @@ const recentActivity = [
     },
 ];
 
-const shortcuts = [
-    { name: "Nueva Cotización", icon: FileText, href: "/dashboard/sales/quotes" },
-    { name: "Ver Clientes", icon: Users, href: "/dashboard/sales/clients" },
-    { name: "Revisar Almacén", icon: Package, href: "/dashboard/warehouse" },
-    { name: "Estado Financiero", icon: DollarSign, href: "/dashboard/finance" },
-];
+const shortcuts = {
+    SUPERADMIN: [
+        { name: "Gestión de Usuarios", icon: Users, href: "/dashboard/users" },
+        { name: "Finanzas Globales", icon: DollarSign, href: "/dashboard/finance" },
+        { name: "Catálogo de Productos", icon: Package, href: "/dashboard/sales/products" },
+        { name: "Reportes de Ventas", icon: TrendingUp, href: "/dashboard/sales/reports" },
+    ],
+    ADMIN: [
+        { name: "Nueva Cotización", icon: FileText, href: "/dashboard/sales/quotes" },
+        { name: "Ver Clientes", icon: Users, href: "/dashboard/sales/clients" },
+        { name: "Revisar Almacén", icon: Package, href: "/dashboard/warehouse" },
+        { name: "Estado Financiero", icon: DollarSign, href: "/dashboard/finance" },
+    ],
+    SALES: [
+        { name: "Nueva Cotización", icon: FileText, href: "/dashboard/sales/quotes" },
+        { name: "Ver Clientes", icon: Users, href: "/dashboard/sales/clients" },
+        { name: "Mis Ventas", icon: TrendingUp, href: "/dashboard/sales/orders" },
+    ],
+    WAREHOUSE: [
+        { name: "Recepción", icon: Package, href: "/dashboard/warehouse/receivals" },
+        { name: "Inventario", icon: CheckCircle2, href: "/dashboard/warehouse/inventory" },
+    ],
+    FINANCE: [
+        { name: "Facturación", icon: FileText, href: "/dashboard/finance/invoices" },
+        { name: "Cuentas por Cobrar", icon: DollarSign, href: "/dashboard/finance/receivables" },
+    ]
+};
 
 export default function DashboardPage() {
     const { user, role } = useAuthStore();
@@ -138,6 +160,11 @@ export default function DashboardPage() {
             {/* Role-Specific Dashboard Content */}
             {role === 'SALES' ? (
                 <SalesDashboard />
+            ) : role === 'SUPERADMIN' ? (
+                <SuperAdminDashboard
+                    stats={stats}
+                    shortcuts={shortcuts['SUPERADMIN'] || []}
+                />
             ) : (
                 <div className="space-y-6">
                     {/* Stats Grid */}
@@ -289,7 +316,7 @@ export default function DashboardPage() {
                     <div className="card-premium p-6 bg-card">
                         <h3 className="text-lg font-semibold text-foreground mb-4">Accesos Rápidos</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {shortcuts.map((shortcut) => (
+                            {(shortcuts[role as keyof typeof shortcuts] || shortcuts.ADMIN).map((shortcut) => (
                                 <Link
                                     key={shortcut.name}
                                     href={shortcut.href}
