@@ -39,11 +39,28 @@ export default function QuotesPage() {
     const [showTrash, setShowTrash] = useState(false);
 
     useEffect(() => {
-        if (user) fetchQuotes();
+        if (user) {
+            // OPTIMIZATION: Load from cache first
+            const cacheKey = `quotes_${user.uid}`;
+            const cached = localStorage.getItem(cacheKey);
+            let isBackground = false;
+
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    setQuotes(parsed);
+                    setLoading(false);
+                    isBackground = true;
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+            fetchQuotes(isBackground);
+        }
     }, [user, role]);
 
-    const fetchQuotes = async () => {
-        setLoading(true);
+    const fetchQuotes = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
         try {
             let q;
             if (role === 'SUPERADMIN' || role === 'ADMIN') {
@@ -61,6 +78,11 @@ export default function QuotesPage() {
                 list.push({ id: doc.id, ...doc.data() } as Quote);
             });
             setQuotes(list);
+
+            // Update cache
+            if (user?.uid) {
+                localStorage.setItem(`quotes_${user.uid}`, JSON.stringify(list));
+            }
         } catch (error) {
             console.error("Error fetching quotes:", error);
         } finally {
