@@ -76,6 +76,18 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
     useEffect(() => {
         if (!user) return;
 
+        // OPTIMIZATION: Load from cache immediately
+        const cacheKey = `crm_stages_${user.uid}`;
+        const cachedStages = localStorage.getItem(cacheKey);
+        if (cachedStages) {
+            try {
+                setStages(JSON.parse(cachedStages));
+                setLoading(false);
+            } catch (e) {
+                console.error("Error parsing CRM cache", e);
+            }
+        }
+
         let qLeads;
         let qQuotes;
 
@@ -88,8 +100,21 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
         }
 
         const fetchClients = async () => {
-            const snap = await getDocs(collection(db, "clients"));
-            return snap.docs.reduce((acc, d) => ({ ...acc, [d.id]: d.data().razonSocial }), {} as any);
+            // Cache clients map specifically
+            const clientCacheKey = 'crm_clients_map';
+            const cachedClients = localStorage.getItem(clientCacheKey);
+            let clientMap: any = cachedClients ? JSON.parse(cachedClients) : {};
+
+            try {
+                // Fetch fresh clients in background/parallel
+                const snap = await getDocs(collection(db, "clients"));
+                const freshMap = snap.docs.reduce((acc, d) => ({ ...acc, [d.id]: d.data().razonSocial }), {} as any);
+                localStorage.setItem(clientCacheKey, JSON.stringify(freshMap));
+                return freshMap;
+            } catch (e) {
+                console.error("Error fetching clients, using cache", e);
+                return clientMap; // Fallback to cache if offline
+            }
         };
 
         const setupListeners = async () => {
@@ -102,7 +127,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                         return {
                             id: doc.id,
                             type: 'LEAD',
-                            client: data.client,
+                            client: data.client, // Leads store client name directly often
                             amount: data.amount,
                             task: data.task || "Seguimiento",
                             priority: data.priority || "medium",
@@ -124,7 +149,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                         return {
                             id: doc.id,
                             type: 'QUOTE',
-                            client: clientMap[data.clientId] || "Cliente Desconocido",
+                            client: clientMap[data.clientId] || data.clientName || "Cliente Desconocido", // Fallback to clientName if stored
                             amount: data.financials?.total || 0,
                             task: "Cotización enviada",
                             priority: "high",
@@ -150,6 +175,9 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
 
                     setStages(groupedStages as any);
                     setLoading(false);
+
+                    // Update Cache
+                    localStorage.setItem(cacheKey, JSON.stringify(groupedStages));
                 });
 
                 return () => unsubscribeQuotes();
