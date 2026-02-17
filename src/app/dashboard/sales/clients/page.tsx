@@ -24,13 +24,27 @@ export default function ClientsPage() {
 
     useEffect(() => {
         if (user && role) {
-            fetchClients();
+            // OPTIMIZATION: Load from cache first
+            const cacheKey = `clients_list_${user.uid}`;
+            const cached = localStorage.getItem(cacheKey);
+            let isBackground = false;
+
+            if (cached) {
+                try {
+                    setClients(JSON.parse(cached));
+                    setLoading(false);
+                    isBackground = true;
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+            fetchClients(isBackground);
         }
     }, [user, role]);
 
-    const fetchClients = async () => {
+    const fetchClients = async (isBackground = false) => {
         if (!user || !role) return;
-        setLoading(true);
+        if (!isBackground) setLoading(true);
         try {
             let q;
             if (role === 'SUPERADMIN' || role === 'ADMIN') {
@@ -48,6 +62,11 @@ export default function ClientsPage() {
                 list.push({ id: doc.id, ...doc.data() } as Client);
             });
             setClients(list);
+
+            // Update cache
+            if (user?.uid) {
+                localStorage.setItem(`clients_list_${user.uid}`, JSON.stringify(list));
+            }
         } catch (error) {
             console.error("Error fetching clients:", error);
         } finally {
