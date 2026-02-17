@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -200,35 +200,48 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
 
     const handleSaveClient = async () => {
         if (!newClientData.razonSocial) return alert("Razón Social es obligatoria");
-        setLoading(true);
+
+        // OPTIMISTIC UPDATE: Immediate UI feedback
+        const isEdit = isEditingClient && selectedClientId;
+        const optimisticId = isEdit ? selectedClientId : doc(collection(db, "clients")).id;
+
+        const optimisticClient = {
+            id: optimisticId,
+            ...newClientData,
+            taxRate: 0.16
+        } as Client;
+
+        if (isEdit) {
+            setClients(clients.map(c => c.id === optimisticId ? { ...c, ...newClientData } : c));
+        } else {
+            setClients([...clients, optimisticClient]);
+            setSelectedClientId(optimisticId);
+        }
+
+        // Close modal immediately
+        setNewClientMode(false);
+        setNewClientData({ razonSocial: "", rfc: "", email: "", phone: "", contactName: "" });
+        setIsEditingClient(false);
+
+        // Background Save
         try {
-            if (isEditingClient && selectedClientId) {
-                await updateDoc(doc(db, "clients", selectedClientId), {
+            if (isEdit) {
+                await updateDoc(doc(db, "clients", optimisticId), {
                     ...newClientData,
                     updatedAt: serverTimestamp()
                 });
-                setClients(clients.map(c => c.id === selectedClientId ? { ...c, ...newClientData } : c));
-                setIsEditingClient(false);
-                alert("Cliente actualizado correctamente");
             } else {
-                const docRef = await addDoc(collection(db, "clients"), {
+                await setDoc(doc(db, "clients", optimisticId), {
                     ...newClientData,
                     createdAt: serverTimestamp(),
                     salesRepId: user?.uid,
                     status: "DRAFT",
                     taxRate: 0.16
                 });
-                const newClient = { id: docRef.id, ...newClientData, taxRate: 0.16 } as Client;
-                setClients([...clients, newClient]);
-                setSelectedClientId(docRef.id);
             }
-            setNewClientMode(false);
-            setNewClientData({ razonSocial: "", rfc: "", email: "", phone: "", contactName: "" });
         } catch (err) {
-            console.error("Error saving client:", err);
-            alert("Error al guardar el cliente");
-        } finally {
-            setLoading(false);
+            console.error("Background save error:", err);
+            alert("Error guardando en la nube. Revisa tu conexión.");
         }
     };
 
