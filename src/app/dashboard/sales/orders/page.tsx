@@ -29,11 +29,27 @@ export default function OrdersListPage() {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        if (user) fetchOrders();
+        if (user) {
+            // OPTIMIZATION: Load from cache first
+            const cacheKey = `orders_list_${user.uid}`;
+            const cached = localStorage.getItem(cacheKey);
+            let isBackground = false;
+
+            if (cached) {
+                try {
+                    setOrders(JSON.parse(cached));
+                    setLoading(false);
+                    isBackground = true;
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+            fetchOrders(isBackground);
+        }
     }, [user]);
 
-    const fetchOrders = async () => {
-        setLoading(true);
+    const fetchOrders = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
         try {
             let q;
             const ordersRef = collection(db, "orders");
@@ -55,6 +71,11 @@ export default function OrdersListPage() {
                 list.push({ id: doc.id, ...doc.data() } as Order);
             });
             setOrders(list);
+
+            // Update cache
+            if (user?.uid) {
+                localStorage.setItem(`orders_list_${user.uid}`, JSON.stringify(list));
+            }
         } catch (error) {
             console.error("Error fetching orders:", error);
         } finally {

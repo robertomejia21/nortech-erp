@@ -54,11 +54,26 @@ export default function ProductsPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        fetchData();
+        // OPTIMIZATION: Load from cache first
+        const productsCache = localStorage.getItem('products_cache');
+        const suppliersCache = localStorage.getItem('suppliers_cache');
+        let isBackground = false;
+
+        if (productsCache && suppliersCache) {
+            try {
+                setProducts(JSON.parse(productsCache));
+                setSuppliers(JSON.parse(suppliersCache));
+                setLoading(false);
+                isBackground = true;
+            } catch (e) {
+                console.error("Cache parse error", e);
+            }
+        }
+        fetchData(isBackground);
     }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
         try {
             const [productsSnap, suppliersSnap] = await Promise.all([
                 getDocs(query(collection(db, "products"), orderBy("name"))),
@@ -67,6 +82,7 @@ export default function ProductsPage() {
 
             const supplierList = suppliersSnap.docs.map(d => ({ id: d.id, name: d.data().name } as Supplier));
             setSuppliers(supplierList);
+            localStorage.setItem('suppliers_cache', JSON.stringify(supplierList));
 
             const productList = productsSnap.docs.map(d => {
                 const data = d.data();
@@ -78,6 +94,7 @@ export default function ProductsPage() {
                 } as Product;
             });
             setProducts(productList);
+            localStorage.setItem('products_cache', JSON.stringify(productList));
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
