@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, UploadCloud, FileText, CheckCircle } from "lucide-react";
 
 export default function SupplierForm() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
 
     const [formData, setFormData] = useState({
         name: "",
+        rfc: "",
         contactName: "",
         email: "",
         phone: "",
@@ -20,8 +23,43 @@ export default function SupplierForm() {
         city: "",
         state: "",
         zipCode: "",
-        notes: ""
+        notes: "",
+        taxSituationUrl: "", // Constancia
+        complianceOpinionUrl: "" // Opinión
     });
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'taxSituationUrl' | 'complianceOpinionUrl') => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(prev => ({ ...prev, [field]: true }));
+        try {
+            // Create a reference
+            const storageRef = ref(storage, `suppliers/docs/${Date.now()}_${file.name}`);
+
+            // Upload
+            const snapshot = await uploadBytes(storageRef, file);
+
+            // Get URL
+            const url = await getDownloadURL(snapshot.ref);
+
+            setFormData(prev => ({ ...prev, [field]: url }));
+
+            // "Mock" Auto-fill simply to delight user if they upload Constancia
+            if (field === 'taxSituationUrl' && !formData.name) {
+                // In a real app, we'd call an OCR API here.
+                // For now, we won't overwrite unless empty, to simulate "reading".
+                // const fakeExtract = { name: "Extracted Name S.A.", rfc: "EXT123456789" };
+                // setFormData(prev => ({ ...prev, name: fakeExtract.name, rfc: fakeExtract.rfc }));
+            }
+
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("Error al subir el archivo");
+        } finally {
+            setUploading(prev => ({ ...prev, [field]: false }));
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,10 +71,11 @@ export default function SupplierForm() {
                 updatedAt: serverTimestamp(),
             });
 
-            const willCreateAnother = confirm("Proveedor guardado. ¿Deseas registrar otro?");
+            const willCreateAnother = confirm("Proveedor guardado exitosamente. ¿Deseas registrar otro?");
             if (willCreateAnother) {
                 setFormData({
                     name: "",
+                    rfc: "",
                     contactName: "",
                     email: "",
                     phone: "",
@@ -45,8 +84,11 @@ export default function SupplierForm() {
                     city: "",
                     state: "",
                     zipCode: "",
-                    notes: ""
+                    notes: "",
+                    taxSituationUrl: "",
+                    complianceOpinionUrl: ""
                 });
+                window.scrollTo(0, 0);
             } else {
                 router.push("/dashboard/admin/suppliers");
                 router.refresh();
@@ -60,12 +102,91 @@ export default function SupplierForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-zinc-950 p-8 rounded-2xl shadow-2xl border border-zinc-900 max-w-4xl mx-auto text-zinc-100">
+        <form onSubmit={handleSubmit} className="bg-zinc-950 p-8 rounded-2xl shadow-2xl border border-zinc-900 max-w-5xl mx-auto text-zinc-100">
             <div className="flex items-center gap-3 mb-8 border-b border-zinc-800 pb-4">
                 <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-                    Registrar Nuevo Proveedor
+                    Alta de Proveedor y Documentación
                 </h2>
+            </div>
+
+            {/* SECTION 1: DOCUMENTATION (FIRST as requested) */}
+            <div className="mb-10 bg-zinc-900/50 p-6 rounded-xl border border-zinc-800/50">
+                <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Documentación Fiscal (Carga Automática)
+                </h3>
+                <p className="text-xs text-zinc-500 mb-6">
+                    Sube la Constancia de Situación Fiscal y la Opinión de Cumplimiento para completar el expediente digital.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Constancia Upload */}
+                    <div className="relative group">
+                        <label className="block text-sm font-medium text-zinc-300 mb-2">
+                            Constancia de Situación Fiscal
+                        </label>
+                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px] 
+                            ${formData.taxSituationUrl ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-zinc-700 hover:border-blue-500 bg-zinc-900 hover:bg-zinc-800/80'}`}>
+
+                            {uploading['taxSituationUrl'] ? (
+                                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                            ) : formData.taxSituationUrl ? (
+                                <>
+                                    <CheckCircle className="w-10 h-10 text-emerald-500 mb-2" />
+                                    <span className="text-emerald-400 text-sm font-medium">Archivo Cargado</span>
+                                    <p className="text-zinc-500 text-xs mt-1">Listo para procesar</p>
+                                </>
+                            ) : (
+                                <>
+                                    <UploadCloud className="w-10 h-10 text-zinc-500 mb-3 group-hover:text-blue-400 transition-colors" />
+                                    <span className="text-zinc-400 text-sm">Arrastra o haz clic para subir</span>
+                                    <p className="text-zinc-600 text-xs mt-1">PDF, JPG, PNG</p>
+                                </>
+                            )}
+
+                            <input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => handleFileUpload(e, 'taxSituationUrl')}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                disabled={uploading['taxSituationUrl'] || !!formData.taxSituationUrl}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Opinion Upload */}
+                    <div className="relative group">
+                        <label className="block text-sm font-medium text-zinc-300 mb-2">
+                            Opinión de Cumplimiento
+                        </label>
+                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px] 
+                            ${formData.complianceOpinionUrl ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-zinc-700 hover:border-blue-500 bg-zinc-900 hover:bg-zinc-800/80'}`}>
+
+                            {uploading['complianceOpinionUrl'] ? (
+                                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                            ) : formData.complianceOpinionUrl ? (
+                                <>
+                                    <CheckCircle className="w-10 h-10 text-emerald-500 mb-2" />
+                                    <span className="text-emerald-400 text-sm font-medium">Archivo Cargado</span>
+                                </>
+                            ) : (
+                                <>
+                                    <UploadCloud className="w-10 h-10 text-zinc-500 mb-3 group-hover:text-blue-400 transition-colors" />
+                                    <span className="text-zinc-400 text-sm">Arrastra o haz clic para subir</span>
+                                </>
+                            )}
+
+                            <input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => handleFileUpload(e, 'complianceOpinionUrl')}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                disabled={uploading['complianceOpinionUrl'] || !!formData.complianceOpinionUrl}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -75,7 +196,7 @@ export default function SupplierForm() {
 
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 mb-1 ml-1 uppercase tracking-wider">
-                            Empresa <span className="text-red-500">*</span>
+                            Razón Social <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -84,6 +205,21 @@ export default function SupplierForm() {
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all placeholder:text-zinc-600"
                             placeholder="Ej. Distribuidora Global S.A."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1 ml-1 uppercase tracking-wider">
+                            RFC <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            value={formData.rfc}
+                            onChange={(e) => setFormData({ ...formData, rfc: e.target.value.toUpperCase() })}
+                            className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all placeholder:text-zinc-600 font-mono tracking-wide"
+                            placeholder="GHI789012XYZ"
+                            maxLength={13}
                         />
                     </div>
 
