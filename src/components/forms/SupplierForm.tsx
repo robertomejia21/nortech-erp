@@ -5,10 +5,16 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Loader2, Save, UploadCloud, FileText, CheckCircle } from "lucide-react";
 
-export default function SupplierForm() {
+interface SupplierFormProps {
+    redirectUrl?: string;
+}
+
+export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers" }: SupplierFormProps) {
     const router = useRouter();
+    const { user } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
 
@@ -63,10 +69,17 @@ export default function SupplierForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!user) {
+            alert("Error: No has iniciado sesión.");
+            return;
+        }
+
         setLoading(true);
         try {
             await addDoc(collection(db, "suppliers"), {
                 ...formData,
+                createdBy: user.uid,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
@@ -90,7 +103,7 @@ export default function SupplierForm() {
                 });
                 window.scrollTo(0, 0);
             } else {
-                router.push("/dashboard/admin/suppliers");
+                router.push(redirectUrl);
                 router.refresh();
             }
         } catch (error) {
@@ -126,7 +139,7 @@ export default function SupplierForm() {
                         <label className="block text-sm font-medium text-zinc-300 mb-2">
                             Constancia de Situación Fiscal
                         </label>
-                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px] 
+                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px]
                             ${formData.taxSituationUrl ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-zinc-700 hover:border-blue-500 bg-zinc-900 hover:bg-zinc-800/80'}`}>
 
                             {uploading['taxSituationUrl'] ? (
@@ -160,7 +173,7 @@ export default function SupplierForm() {
                         <label className="block text-sm font-medium text-zinc-300 mb-2">
                             Opinión de Cumplimiento
                         </label>
-                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px] 
+                        <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center flex flex-col items-center justify-center min-h-[160px]
                             ${formData.complianceOpinionUrl ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-zinc-700 hover:border-blue-500 bg-zinc-900 hover:bg-zinc-800/80'}`}>
 
                             {uploading['complianceOpinionUrl'] ? (
