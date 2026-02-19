@@ -6,10 +6,11 @@ import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
     Search, DollarSign, FileText, Calendar,
-    CheckCircle2, AlertCircle, ArrowUpRight, Filter
+    CheckCircle2, AlertCircle, ArrowUpRight, Filter, Upload
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import PaymentModal from "@/components/modals/PaymentModal";
+import InvoiceUploadModal from "@/components/modals/InvoiceUploadModal";
 
 export default function ReceivablesPage() {
     const { role } = useAuthStore();
@@ -18,6 +19,7 @@ export default function ReceivablesPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         fetchReceivables();
@@ -31,7 +33,7 @@ export default function ReceivablesPage() {
             // For now, we list all active orders that might need payment.
             const q = query(
                 collection(db, "orders"),
-                where("status", "in", ["APPROVED", "PO_SENT", "GOODS_RECEIVED"]),
+                where("status", "in", ["APPROVED", "PO_SENT", "GOODS_RECEIVED", "COMPLETED", "PAID"]),
                 orderBy("createdAt", "desc")
             );
 
@@ -53,12 +55,20 @@ export default function ReceivablesPage() {
         setIsPaymentModalOpen(true);
     };
 
+    const handleOpenUpload = (order: any) => {
+        setSelectedOrder(order);
+        setIsUploadModalOpen(true);
+    };
+
     const filteredOrders = orders.filter(order =>
         order.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.quoteFolio?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const totalReceivable = filteredOrders.reduce((acc, order) => acc + (order.financials?.total || 0), 0);
+    const totalReceivable = filteredOrders.reduce((acc, order) => {
+        if (order.status === 'PAID') return acc;
+        return acc + (order.financials?.total || 0);
+    }, 0);
 
     return (
         <div className="space-y-8 pb-10">
@@ -79,9 +89,6 @@ export default function ReceivablesPage() {
                             className="bg-card border border-border rounded-lg py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 outline-none"
                         />
                     </div>
-                    <button className="btn-ghost p-2 border border-border rounded-lg hover:bg-muted">
-                        <Filter className="w-4 h-4 text-muted-foreground" />
-                    </button>
                 </div>
             </div>
 
@@ -91,13 +98,11 @@ export default function ReceivablesPage() {
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total por Cobrar</p>
                     <p className="text-3xl font-black mt-2 text-foreground">{formatCurrency(totalReceivable)}</p>
                 </div>
-                <div className="card-premium p-6 bg-card border-l-4 border-l-amber-500">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Facturas Vencidas</p>
-                    <p className="text-3xl font-black mt-2 text-amber-500">0</p>
-                </div>
                 <div className="card-premium p-6 bg-card border-l-4 border-l-emerald-500">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Cobrado este Mes</p>
-                    <p className="text-3xl font-black mt-2 text-emerald-500">$0.00</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Facturas Cargadas</p>
+                    <p className="text-3xl font-black mt-2 text-emerald-500">
+                        {orders.filter(o => o.invoiceStatus === 'UPLOADED').length}
+                    </p>
                 </div>
             </div>
 
@@ -108,8 +113,8 @@ export default function ReceivablesPage() {
                         <thead className="bg-muted/50 text-muted-foreground">
                             <tr>
                                 <th className="p-4 text-left font-bold">Folio / Cliente</th>
-                                <th className="p-4 text-left font-bold">Fecha Emisión</th>
-                                <th className="p-4 text-left font-bold">Estado</th>
+                                <th className="p-4 text-left font-bold">Estado Fiscal</th>
+                                <th className="p-4 text-left font-bold">Estado Pago</th>
                                 <th className="p-4 text-right font-bold">Monto Total</th>
                                 <th className="p-4 text-center font-bold">Acciones</th>
                             </tr>
@@ -126,25 +131,53 @@ export default function ReceivablesPage() {
                                                 {order.quoteFolio}
                                             </div>
                                             <div className="text-xs text-muted-foreground font-medium">{order.clientName}</div>
-                                        </td>
-                                        <td className="p-4 text-muted-foreground">
-                                            {order.createdAt?.seconds ? formatDate(new Date(order.createdAt.seconds * 1000)) : '---'}
+                                            <div className="text-[10px] text-muted-foreground">
+                                                {order.createdAt?.seconds ? formatDate(new Date(order.createdAt.seconds * 1000)) : '---'}
+                                            </div>
                                         </td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold border uppercase bg-blue-100 text-blue-700 border-blue-200`}>
-                                                POR COBRAR
-                                            </span>
+                                            {order.invoiceStatus === 'UPLOADED' ? (
+                                                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full w-fit">
+                                                    <CheckCircle2 className="w-3 h-3" /> Factura OK
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-100 w-fit">
+                                                    Pendiente Factura
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="p-4">
+                                            {order.status === 'PAID' ? (
+                                                <span className="bg-emerald-100 text-emerald-700 border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase">
+                                                    PAGADO
+                                                </span>
+                                            ) : (
+                                                <span className="bg-blue-100 text-blue-700 border-blue-200 px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase">
+                                                    POR COBRAR
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="p-4 text-right font-bold font-mono text-base">
                                             {formatCurrency(order.financials?.total || 0)}
                                         </td>
                                         <td className="p-4 text-center">
-                                            <button
-                                                onClick={() => handleOpenPayment(order)}
-                                                className="btn-primary px-4 py-2 text-xs font-bold shadow-md hover:shadow-lg transition-all"
-                                            >
-                                                REGISTRAR COBRO
-                                            </button>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleOpenUpload(order)}
+                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
+                                                    title="Subir Factura (PDF/XML)"
+                                                >
+                                                    <Upload className="w-4 h-4" />
+                                                </button>
+                                                {order.status !== 'PAID' && (
+                                                    <button
+                                                        onClick={() => handleOpenPayment(order)}
+                                                        className="btn-primary px-3 py-1.5 text-[10px] font-bold shadow-md hover:shadow-lg transition-all"
+                                                    >
+                                                        REGISTRAR COBRO
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -166,7 +199,15 @@ export default function ReceivablesPage() {
                 order={selectedOrder}
                 onPaymentComplete={() => {
                     fetchReceivables();
-                    // Optional: Show success toast
+                }}
+            />
+
+            <InvoiceUploadModal
+                isOpen={isUploadModalOpen}
+                onClose={() => setIsUploadModalOpen(false)}
+                order={selectedOrder}
+                onUploadComplete={() => {
+                    fetchReceivables();
                 }}
             />
         </div>

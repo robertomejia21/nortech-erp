@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import SalesDashboard from "@/components/dashboard/SalesDashboard";
 import SuperAdminDashboard from "@/components/dashboard/SuperAdminDashboard";
+import AdminDashboard from "@/components/dashboard/AdminDashboard";
 
 const stats = [
     {
@@ -164,6 +165,11 @@ export default function DashboardPage() {
                 <SuperAdminDashboard
                     stats={stats}
                     shortcuts={shortcuts['SUPERADMIN'] || []}
+                />
+            ) : role === 'ADMIN' ? (
+                <AdminDashboard
+                    stats={stats}
+                    shortcuts={shortcuts['ADMIN'] || []}
                 />
             ) : (
                 <div className="space-y-6">

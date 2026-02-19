@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion, addDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2, Upload, CheckCircle, FileText } from "lucide-react";
 import { formatDate } from "@/lib/utils";
@@ -18,6 +18,7 @@ type Order = {
     createdAt: any;
     createdBy?: string;
     documents?: { name: string; type: string; url: string }[];
+    parentSalesOrderId?: string; // For linking back to sales rep
 };
 
 export default function ReceivalPage() {
@@ -62,6 +63,38 @@ export default function ReceivalPage() {
             await updateDoc(doc(db, "orders", orderId), {
                 status: "GOODS_RECEIVED"
             });
+
+            // Notify Sales Layout
+            const order = orders.find(o => o.id === orderId);
+            // Check if it's a PO and has a parent
+            // The logic below assumes that if it doesn't have parentSalesOrderId, we might notify createdBy directly if available
+            // But requirement specifically asked for identifying Sales Rep
+
+            let targetUserId = order?.createdBy; // Default to whoever created this record (Admin)
+
+            if (order && (order as any).parentSalesOrderId) {
+                const parentId = (order as any).parentSalesOrderId;
+                try {
+                    const parentDoc = await getDoc(doc(db, "orders", parentId));
+                    if (parentDoc.exists()) {
+                        const pData = parentDoc.data();
+                        // Priority: salesRepId > createdBy
+                        targetUserId = pData.salesRepId || pData.createdBy;
+                    }
+                } catch (e) { console.error("Error fetching parent order for notification:", e); }
+            }
+
+            if (targetUserId) {
+                await addDoc(collection(db, "notifications"), {
+                    userId: targetUserId,
+                    title: "Mercancía Recibida",
+                    message: `Almacén ha recibido la mercancía de la orden ${order?.quoteFolio || order?.id}.`,
+                    link: `/dashboard/sales/orders/${(order as any).parentSalesOrderId || orderId}`,
+                    read: false,
+                    createdAt: serverTimestamp()
+                });
+            }
+
             fetchPendingOrders(); // Refresh
         } catch (error) {
             console.error("Error updating order:", error);

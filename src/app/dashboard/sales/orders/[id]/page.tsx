@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, serverTimestamp, addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, updateDoc, serverTimestamp, addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
@@ -12,6 +12,7 @@ import {
 import { formatCurrency, formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { Upload as UploadIcon, Calendar as CalendarIcon, ExternalLink } from "lucide-react";
 
 type Order = {
     id: string;
@@ -23,10 +24,17 @@ type Order = {
     financials: { subtotal: number; taxRate: number; taxAmount: number; total: number; currency: string };
     clientOcFolio: string;
     clientOcUrl: string;
-    status: 'PENDING' | 'APPROVED' | 'PO_SENT' | 'COMPLETED' | 'CANCELLED' | 'GOODS_RECEIVED';
-    createdAt: any;
     salesRepId: string;
     internalPoId?: string;
+    // New fields for PO logic
+    type?: 'SALES_ORDER' | 'PURCHASE_ORDER';
+    parentSalesOrderId?: string;
+    supplierId?: string;
+    supplierName?: string;
+    providerOcUrl?: string; // Validated Field
+    estimatedDeliveryDate?: any; // Validated Field
+    status: 'PENDING' | 'APPROVED' | 'PO_SENT' | 'COMPLETED' | 'CANCELLED' | 'GOODS_RECEIVED' | 'PO_CREATED';
+    createdAt: any;
 };
 
 export default function OrderDetailPage() {
@@ -35,6 +43,7 @@ export default function OrderDetailPage() {
     const { user, role } = useAuthStore();
 
     const [order, setOrder] = useState<Order | null>(null);
+    const [childOrders, setChildOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -49,7 +58,16 @@ export default function OrderDetailPage() {
             const docRef = doc(db, "orders", id);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
-                setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+                const orderData = { id: docSnap.id, ...docSnap.data() } as Order;
+                setOrder(orderData);
+
+                // If this is a SALES_ORDER, fetch its child PURCHASE_ORDERs
+                if (!orderData.type || orderData.type === 'SALES_ORDER') {
+                    const q = query(collection(db, "orders"), where("parentSalesOrderId", "==", id));
+                    const childSnaps = await getDocs(q);
+                    const children = childSnaps.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+                    setChildOrders(children);
+                }
             }
         } catch (error) {
             console.error("Error fetching order:", error);
@@ -139,6 +157,134 @@ export default function OrderDetailPage() {
     if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin" /></div>;
     if (!order) return <div className="p-20 text-center">Orden no encontrada.</div>;
 
+    // --- PURCHASE ORDER VIEW (For Admins/Warehouse interacting with Supplier OCs) ---
+    if (order.type === 'PURCHASE_ORDER') {
+        const handleUploadProviderOC = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            // MOCK UPLOAD
+            const mockUrl = `https://mock-storage.com/${file.name}`;
+            await updateDoc(doc(db, "orders", id), {
+                providerOcUrl: mockUrl,
+                status: 'PO_SENT' // Move status to PO_SENT if it was CREATED
+            });
+            alert("OC de Proveedor cargada.");
+            fetchOrder();
+        };
+
+        const handleSetETD = async (date: string) => {
+            if (!date) return;
+            // Mock Timestamp
+            const timestamp = { seconds: new Date(date).getTime() / 1000 };
+            await updateDoc(doc(db, "orders", id), {
+                estimatedDeliveryDate: timestamp
+            });
+
+            // Notify Sales (via parent) and Warehouse
+            if (order.parentSalesOrderId) {
+                // Fetch parent to get salesRep? Or just broadcast
+                // Simplification: Notify Warehouse
+                await addDoc(collection(db, "notifications"), {
+                    userId: "SYSTEM_BROADCAST", // Or target warehouse users
+                    targetRole: "WAREHOUSE",
+                    title: "ETD Actualizado",
+                    message: `Estimado de entrega actualizado para ${order.supplierName} (OC-${order.quoteFolio})`,
+                    href: `/dashboard/warehouse/receival`,
+                    read: false,
+                    createdAt: serverTimestamp()
+                });
+            }
+            alert("Fecha estimada actualizada.");
+            fetchOrder();
+        };
+
+        return (
+            <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in">
+                <Link href={`/dashboard/sales/orders/${order.parentSalesOrderId || ''}`} className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+                    <ArrowLeft className="w-4 h-4" /> Volver a Orden de Venta Maestra
+                </Link>
+
+                <div className="flex justify-between items-start">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <span className="bg-purple-500/10 text-purple-600 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">
+                                ORDEN DE COMPRA (INTERNA)
+                            </span>
+                            <span className="text-muted-foreground font-mono text-xs">#{order.id.slice(0, 8)}</span>
+                        </div>
+                        <h1 className="text-3xl font-bold text-foreground">Proveedor: {order.supplierName}</h1>
+                        <p className="text-muted-foreground">Vinculada a Cotización: {order.quoteFolio}</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Upload Section */}
+                    <div className="card-premium p-6">
+                        <h3 className="font-bold flex items-center gap-2 mb-4">
+                            <UploadIcon className="w-5 h-5 text-primary" /> Cargar OC Firmada / Factura
+                        </h3>
+                        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:bg-muted/5 transition-colors">
+                            {order.providerOcUrl ? (
+                                <div className="text-emerald-500 flex flex-col items-center">
+                                    <CheckCircle2 className="w-10 h-10 mb-2" />
+                                    <p className="font-bold">Archivo Cargado</p>
+                                    <a href={order.providerOcUrl} target="_blank" className="text-xs hover:underline mt-2">Ver Documento</a>
+                                </div>
+                            ) : (
+                                <label className="cursor-pointer block">
+                                    <p className="text-sm font-medium mb-2">Selecciona PDF/XML del Proveedor</p>
+                                    <input type="file" className="hidden" onChange={handleUploadProviderOC} />
+                                    <span className="btn-secondary text-xs">Examinar Archivos</span>
+                                </label>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ETD Section */}
+                    <div className="card-premium p-6">
+                        <h3 className="font-bold flex items-center gap-2 mb-4">
+                            <CalendarIcon className="w-5 h-5 text-primary" /> Fecha Estimada de Entrega (ETD)
+                        </h3>
+                        <div className="space-y-4">
+                            <input
+                                type="date"
+                                className="input-dark w-full"
+                                onChange={(e) => handleSetETD(e.target.value)}
+                                defaultValue={order.estimatedDeliveryDate ? new Date(order.estimatedDeliveryDate.seconds * 1000).toISOString().split('T')[0] : ''}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Al actualizar esta fecha, se notificará automáticamente al equipo de Almacén para preparar la recepción.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card-premium p-6">
+                    <h3 className="font-bold mb-4">Productos a Solicitar</h3>
+                    <table className="w-full text-sm">
+                        <thead className="text-muted-foreground border-b border-border">
+                            <tr>
+                                <th className="text-left pb-2">Producto</th>
+                                <th className="text-center pb-2">Cant.</th>
+                                <th className="text-right pb-2">Costo Base</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {order.items.map((item, idx) => (
+                                <tr key={idx} className="border-b border-border/50">
+                                    <td className="py-2">{item.productName}</td>
+                                    <td className="py-2 text-center font-bold">{item.quantity}</td>
+                                    <td className="py-2 text-right font-mono">{formatCurrency(item.basePrice)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+
+    // --- STANDARD SALES ORDER VIEW ---
     return (
         <div className="max-w-5xl mx-auto space-y-6 pb-20 animate-in fade-in duration-500">
             {/* Nav & Actions */}
@@ -265,6 +411,43 @@ export default function OrderDetailPage() {
                         </div>
                     </div>
 
+                    {/* CHILD ORDERS (Internal POs) */}
+                    {childOrders.length > 0 && (
+                        <div className="card-premium p-6 bg-purple-500/5 border-purple-500/10">
+                            <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-purple-600">
+                                <Package className="w-5 h-5" /> Órdenes de Compra a Proveedores
+                            </h3>
+                            <div className="grid gap-3">
+                                {childOrders.map(child => (
+                                    <Link key={child.id} href={`/dashboard/sales/orders/${child.id}`} className="block">
+                                        <div className="bg-card hover:bg-muted/50 border border-border p-4 rounded-xl transition-all flex justify-between items-center group">
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold bg-muted px-2 py-0.5 rounded text-muted-foreground">PO-{child.id.slice(0, 6).toUpperCase()}</span>
+                                                    <span className="font-bold text-foreground">{child.supplierName}</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    {child.items?.length || 0} ítems • {formatCurrency(child.financials.subtotal)}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-right">
+                                                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${child.status === 'GOODS_RECEIVED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                                                        child.providerOcUrl ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                                            'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                                        }`}>
+                                                        {child.status === 'PO_CREATED' ? 'Pendiente OC' : child.status}
+                                                    </span>
+                                                </div>
+                                                <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Products Table */}
                     <div className="card-premium p-6">
                         <h3 className="font-bold mb-4 flex items-center gap-2">
@@ -358,6 +541,32 @@ export default function OrderDetailPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Invoice Files Section */}
+                        {((order as any).invoiceFiles?.length > 0 || (order as any).invoicePdfUrl || (order as any).invoiceXmlUrl) && (
+                            <div className="mt-6 pt-6 border-t border-border">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Archivos Fiscales (Factura)</h3>
+                                <div className="space-y-2">
+                                    {/* Legacy Support */}
+                                    {(order as any).invoicePdfUrl && (
+                                        <a href={(order as any).invoicePdfUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-red-500 hover:underline">
+                                            <FileText className="w-4 h-4" /> Descargar Factura PDF
+                                        </a>
+                                    )}
+                                    {(order as any).invoiceXmlUrl && (
+                                        <a href={(order as any).invoiceXmlUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-500 hover:underline">
+                                            <FileText className="w-4 h-4" /> Descargar Factura XML
+                                        </a>
+                                    )}
+                                    {/* New Array Support */}
+                                    {(order as any).invoiceFiles?.map((file: any, idx: number) => (
+                                        <a key={idx} href={file.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 text-sm hover:underline ${file.name.endsWith('.pdf') ? 'text-red-500' : 'text-blue-500'}`}>
+                                            <FileText className="w-4 h-4" /> {file.name}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Helper Banner */}
