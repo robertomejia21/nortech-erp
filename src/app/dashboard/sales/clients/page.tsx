@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Plus, Search, UserCircle, Briefcase, Filter, BarChart, CheckCircle2, Clock, MoveRight, MoreHorizontal, AtSign, MapPin, ArrowUpRight } from "lucide-react";
@@ -47,12 +47,20 @@ export default function ClientsPage() {
         if (!isBackground) setLoading(true);
         try {
             let q;
+            // OPTIMIZATION: Limit to 50 recent clients to prevent slow loading
+            // and order by newest first.
             if (role === 'SUPERADMIN' || role === 'ADMIN') {
-                q = query(collection(db, "clients"));
+                q = query(
+                    collection(db, "clients"),
+                    orderBy("createdAt", "desc"),
+                    limit(50)
+                );
             } else {
                 q = query(
                     collection(db, "clients"),
-                    where("salesRepId", "==", user.uid)
+                    where("salesRepId", "==", user.uid),
+                    orderBy("createdAt", "desc"),
+                    limit(50)
                 );
             }
 
