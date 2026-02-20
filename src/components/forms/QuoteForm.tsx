@@ -38,7 +38,7 @@ const STEPS = [
 ];
 
 export default function QuoteForm({ initialId }: { initialId?: string }) {
-    const { user, isLoading: authLoading } = useAuthStore();
+    const { user, role, isLoading: authLoading } = useAuthStore();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [currentStep, setCurrentStep] = useState(1);
@@ -84,6 +84,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
     const [subtotal, setSubtotal] = useState(0);
     const [taxAmount, setTaxAmount] = useState(0);
     const [total, setTotal] = useState(0);
+    const [totalProfit, setTotalProfit] = useState(0);
 
     // Initial Load
     useEffect(() => {
@@ -208,24 +209,34 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
 
     // Recalculate Totals
     useEffect(() => {
-        const newSubtotal = items.reduce((acc, item) => {
+        let newSubtotal = 0;
+        let newTotalProfit = 0;
+
+        items.forEach((item) => {
             const itemCurrency = item.currency || "MXN";
             const cost = item.basePrice + (item.importCost || 0) + (item.freightCost || 0);
             const priceInItemCurrency = cost * (1 + item.margin);
+            const profitInItemCurrency = priceInItemCurrency - cost;
 
             let priceInQuoteCurrency = priceInItemCurrency;
+            let profitInQuoteCurrency = profitInItemCurrency;
+
             if (itemCurrency !== currency) {
                 if (itemCurrency === "USD" && currency === "MXN") {
                     priceInQuoteCurrency = priceInItemCurrency * exchangeRate;
+                    profitInQuoteCurrency = profitInItemCurrency * exchangeRate;
                 } else if (itemCurrency === "MXN" && currency === "USD") {
                     priceInQuoteCurrency = priceInItemCurrency / exchangeRate;
+                    profitInQuoteCurrency = profitInItemCurrency / exchangeRate;
                 }
             }
 
-            return acc + (priceInQuoteCurrency * item.quantity);
-        }, 0);
+            newSubtotal += priceInQuoteCurrency * item.quantity;
+            newTotalProfit += profitInQuoteCurrency * item.quantity;
+        });
 
         setSubtotal(newSubtotal);
+        setTotalProfit(newTotalProfit);
         setTaxAmount(newSubtotal * taxRate);
         setTotal(newSubtotal * (1 + taxRate));
     }, [items, taxRate, currency, exchangeRate]);
@@ -1130,6 +1141,19 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                 <span>Total</span>
                                                 <span className="text-primary font-mono">{formatCurrency(total)} {currency}</span>
                                             </div>
+                                            {(role === "SALES" || role === "SUPERADMIN") && (
+                                                <div className="mt-4 pt-4 border-t border-dashed border-emerald-500/30 bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/20 shadow-inner">
+                                                    <div className="flex justify-between items-center text-emerald-700 dark:text-emerald-400">
+                                                        <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                                                            <Coins className="w-4 h-4" /> Comisión Estimada (15%)
+                                                        </span>
+                                                        <span className="font-black text-lg">
+                                                            {formatCurrency(totalProfit * 0.15)} {currency}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-emerald-600/70 mt-1 italic text-right">*Aprox. antes de IEPS/Impuestos.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
