@@ -18,6 +18,7 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
     const { user } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+    const [customCreditDays, setCustomCreditDays] = useState("");
 
     const [formData, setFormData] = useState({
         name: "",
@@ -96,11 +97,18 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
 
         setLoading(true);
         try {
+            // Determine the final credit terms string
+            const finalCreditTerms = formData.creditTerms === 'Otro'
+                ? `Neto ${customCreditDays || 0} Días`
+                : formData.creditTerms;
+
             await addDoc(collection(db, "suppliers"), {
                 ...formData,
+                creditTerms: finalCreditTerms, // Use the determined credit terms
                 createdBy: user.uid,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
+                status: 'active', // Add the status field
             });
 
             const willCreateAnother = confirm("Proveedor guardado exitosamente. ¿Deseas registrar otro?");
@@ -303,11 +311,26 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
                                 className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all text-zinc-300"
                             >
                                 <option value="Contado">Contado</option>
-                                <option value="Neto 7 Dias">Neto 7 Días</option>
-                                <option value="Neto 15 Dias">Neto 15 Días</option>
-                                <option value="Neto 30 Dias">Neto 30 Días</option>
-                                <option value="Neto 60 Dias">Neto 60 Días</option>
+                                <option value="Neto 7 Días">Neto 7 Días</option>
+                                <option value="Neto 15 Días">Neto 15 Días</option>
+                                <option value="Neto 30 Días">Neto 30 Días</option>
+                                <option value="Neto 60 Días">Neto 60 Días</option>
+                                <option value="Otro">Otro...</option>
                             </select>
+                            {formData.creditTerms === 'Otro' && (
+                                <div className="mt-2 flex items-center gap-2">
+                                    <span className="text-sm text-zinc-400">Neto</span>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={customCreditDays}
+                                        onChange={(e) => setCustomCreditDays(e.target.value)}
+                                        className="w-20 p-2 bg-zinc-900 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none transition-all text-center"
+                                        placeholder="0"
+                                    />
+                                    <span className="text-sm text-zinc-400">Días</span>
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-xs font-medium text-zinc-400 mb-1 ml-1 uppercase tracking-wider">Calle y Número</label>
