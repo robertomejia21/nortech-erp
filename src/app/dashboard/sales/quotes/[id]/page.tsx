@@ -35,7 +35,7 @@ type Quote = {
     financials: { subtotal: number; taxRate: number; taxAmount: number; total: number; currency: string };
     createdAt: any;
     notes: string;
-    status: 'DRAFT' | 'FINALIZED' | 'ORDERED' | 'CANCELLED';
+    status: 'DRAFT' | 'FINALIZED' | 'ACCEPTED' | 'ORDERED' | 'CANCELLED';
     orderId?: string; // If converted
 };
 
@@ -141,94 +141,24 @@ export default function QuoteDetailPage() {
         }
     };
 
-    const handleConvertToOrder = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLocalError(null);
-
-        if (!quote || !ocFolio) {
-            setLocalError("Por favor ingresa el Folio de la OC.");
-            return;
-        }
-
+    const confirmAccept = async () => {
+        if (!quote) return;
         setConverting(true);
-        console.log("🚀 Iniciando confirmación de venta...", { quoteId: quote.id, folio: quote.folio });
 
         try {
-            let fileUrl = "";
-
-            // --- PASO 1: Subida de Archivo (Opcional si falla) ---
-            if (ocFile) {
-                try {
-                    console.log("☁️ Subiendo PDF...");
-                    const fileRef = ref(storage, `orders/client_ocs/${quote.id}_${Date.now()}_${ocFile.name}`);
-                    await uploadBytes(fileRef, ocFile);
-                    fileUrl = await getDownloadURL(fileRef);
-                } catch (storageError: any) {
-                    console.error("❌ Error en Storage:", storageError);
-                    console.warn("Continuando sin archivo por error de almacenamiento.");
-                }
-            }
-
-            // --- Sanitización de Datos (CRÍTICO para Firestore) ---
-            const sanitizedItems = (quote.items || []).map(item => {
-                const cost = (Number(item.basePrice) || 0) + (Number(item.importCost) || 0) + (Number(item.freightCost) || 0);
-                const unitPrice = Number(item.unitPrice) || (cost * (1 + (Number(item.margin) || 0)));
-                return {
-                    productId: item.productId || "",
-                    productName: item.productName || "Producto",
-                    quantity: Number(item.quantity) || 1,
-                    unitPrice: unitPrice,
-                    basePrice: Number(item.basePrice) || 0,
-                    importCost: Number(item.importCost) || 0,
-                    freightCost: Number(item.freightCost) || 0,
-                    margin: Number(item.margin) || 0,
-                    supplierId: item.supplierId || "",
-                    supplierName: item.supplierName || ""
-                };
-            });
-
-            const financials = {
-                subtotal: Number(quote.financials?.subtotal) || 0,
-                taxRate: Number(quote.financials?.taxRate) || 0.08,
-                taxAmount: Number(quote.financials?.taxAmount) || 0,
-                total: Number(quote.financials?.total) || 0,
-                currency: quote.financials?.currency || "MXN"
-            };
-
-            // --- PASO 2: Creación de la Orden ---
-            console.log("📝 Registrando Orden...");
-            const orderData = {
-                quoteId: quote.id,
-                quoteFolio: quote.folio,
-                clientId: quote.clientId,
-                clientName: client?.razonSocial || "Cliente",
-                items: sanitizedItems,
-                financials: financials,
-                clientOcFolio: ocFolio,
-                clientOcUrl: fileUrl,
-                status: 'PENDING',
-                salesRepId: user?.uid,
-                createdAt: serverTimestamp(),
-                deliveryStatus: 'PENDING'
-            };
-
-            const orderRef = await addDoc(collection(db, "orders"), orderData);
-
-            // --- PASO 3: Actualización de la Cotización ---
             await updateDoc(doc(db, "quotations", quote.id), {
-                status: 'ORDERED',
-                orderId: orderRef.id
+                status: 'ACCEPTED'
             });
 
-            console.log("🎉 Venta confirmada");
-            setConverting(false);
-            setIsConvertModalOpen(false);
-            alert("¡VENTA EXITOSA! Redirigiendo a la orden...");
-            router.push(`/dashboard/sales/orders/${orderRef.id}`);
+            setSuccessMessage("✅ Venta confirmada. Enviada a Administración para generar OC.");
+            fetchQuote();
 
-        } catch (error: any) {
-            console.error("❌ ERROR CRÍTICO:", error);
-            setLocalError(`Error: ${error.message || "Ocurrió un problema inesperado"}`);
+            setTimeout(() => setSuccessMessage(null), 5000);
+            setIsConvertModalOpen(false);
+        } catch (error) {
+            console.error("Error confirmando venta:", error);
+            alert("❌ Error al confirmar la venta. Intenta de nuevo.");
+        } finally {
             setConverting(false);
         }
     };
@@ -240,7 +170,8 @@ export default function QuoteDetailPage() {
         switch (status) {
             case 'DRAFT': return <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">BORRADOR</span>;
             case 'FINALIZED': return <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">ENVIADA / FINALIZADA</span>;
-            case 'ORDERED': return <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-xs font-bold">VENDIDA (CON OC)</span>;
+            case 'ACCEPTED': return <span className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-600 text-xs font-bold">VENDIDA (ESPERANDO OC)</span>;
+            case 'ORDERED': return <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-600 text-xs font-bold">OC GENERADA</span>;
             case 'CANCELLED': return <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold">CANCELADA</span>;
             default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">{status}</span>;
         }
@@ -266,9 +197,9 @@ export default function QuoteDetailPage() {
                     {quote.status === 'FINALIZED' && (
                         <button
                             onClick={() => setIsConvertModalOpen(true)}
-                            className="btn-primary shadow-lg shadow-primary/20 flex items-center gap-2 animate-pulse"
+                            className="btn-primary bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 flex items-center gap-2 animate-pulse"
                         >
-                            <FileCheck className="w-4 h-4" /> Registrar OC (Cerrar Venta)
+                            <FileCheck className="w-4 h-4" /> Confirmar Venta
                         </button>
                     )}
                     {quote.status === 'ORDERED' && (
@@ -284,7 +215,7 @@ export default function QuoteDetailPage() {
                             <Edit2 className="w-3.5 h-3.5" /> Modificar
                         </Link>
                     )}
-                    {quote.status !== 'ORDERED' && quote.status !== 'CANCELLED' && (
+                    {quote.status !== 'ORDERED' && quote.status !== 'CANCELLED' && quote.status !== 'ACCEPTED' && (
                         <button
                             onClick={() => setIsCancelModalOpen(true)}
                             className="btn-premium-danger"
@@ -473,70 +404,45 @@ export default function QuoteDetailPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsConvertModalOpen(false)} />
                     <div className="relative bg-card w-full max-w-md rounded-2xl border border-border shadow-2xl overflow-hidden animate-in zoom-in-95">
-                        <div className="p-6 border-b border-border bg-muted/20">
+                        <div className="p-6 border-b border-border bg-emerald-50 dark:bg-emerald-950/30">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                Registrar Orden de Compra
+                                Confirmar Venta
                             </h2>
-                            <p className="text-sm text-muted-foreground mt-1">Vincula la OC del cliente para cerrar la venta.</p>
+                            <p className="text-sm text-muted-foreground mt-1">¿El cliente aceptó la cotización?</p>
                         </div>
 
-                        <form onSubmit={handleConvertToOrder} className="p-6 space-y-6">
-                            {localError && (
-                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-2 text-red-500 text-sm animate-in fade-in">
-                                    <AlertCircle className="w-4 h-4 shrink-0" />
-                                    <span>{localError}</span>
-                                </div>
-                            )}
-
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium">Folio de OC del Cliente *</label>
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="Ej. OC-CLIENTE-001"
-                                    className="input-dark w-full"
-                                    value={ocFolio}
-                                    onChange={e => setOcFolio(e.target.value)}
-                                />
-                                <p className="text-xs text-muted-foreground">El número de referencia interno del cliente.</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-sm font-medium">Archivo PDF / Imagen de OC</label>
-                                <div className="border-2 border-dashed border-border rounded-xl p-8 hover:bg-muted/50 transition-colors text-center cursor-pointer relative group">
-                                    <input
-                                        type="file"
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                        accept=".pdf,.png,.jpg,.jpeg"
-                                        onChange={e => setOcFile(e.target.files?.[0] || null)}
-                                    />
-                                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                                    {ocFile ? (
-                                        <p className="text-sm font-medium text-emerald-500 break-all">{ocFile.name}</p>
-                                    ) : (
-                                        <p className="text-sm text-muted-foreground">Arrastra o haz clic para subir archivo</p>
-                                    )}
-                                </div>
+                        <div className="p-6 space-y-4">
+                            <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
+                                <p className="flex items-start gap-2">
+                                    <span className="text-emerald-500 mt-0.5">✓</span>
+                                    <span>Se notificará a Administración para autorizarla.</span>
+                                </p>
+                                <p className="flex items-start gap-2">
+                                    <span className="text-emerald-500 mt-0.5">✓</span>
+                                    <span>La administración generará la Orden de Compra interna.</span>
+                                </p>
                             </div>
 
                             <div className="pt-2 flex gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setIsConvertModalOpen(false)}
+                                    disabled={converting}
                                     className="flex-1 btn-ghost border border-border"
                                 >
                                     Cancelar
                                 </button>
                                 <button
-                                    type="submit"
+                                    type="button"
+                                    onClick={confirmAccept}
                                     disabled={converting}
                                     className="flex-1 btn-primary bg-emerald-600 hover:bg-emerald-700 text-white"
                                 >
-                                    {converting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Confirmar Venta"}
+                                    {converting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Sí, Confirmar Venta"}
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             )}
