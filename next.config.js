@@ -11,6 +11,7 @@ const nextConfig = {
                 fs: false,
                 net: false,
                 tls: false,
+                canvas: false, // Fix pdfjs build error
             };
         }
         return config;
