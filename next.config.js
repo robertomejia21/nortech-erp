@@ -14,6 +14,10 @@ const nextConfig = {
                 canvas: false, // Fix pdfjs build error
             };
         }
+
+        // Globally alias canvas to false to prevent module not found errors during build
+        config.resolve.alias.canvas = false;
+
         return config;
     },
 };
