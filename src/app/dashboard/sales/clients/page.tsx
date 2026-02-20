@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -14,6 +14,7 @@ type Client = {
     rfc: string;
     status: "ACTIVE" | "DRAFT";
     taxRate: number;
+    createdAt?: any;
 };
 
 export default function ClientsPage() {
@@ -89,6 +90,35 @@ export default function ClientsPage() {
         client.rfc?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const chartData = useMemo(() => {
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }).reverse();
+
+        const counts = last7Days.map(date => {
+            const count = clients.filter(c => {
+                if (!c.createdAt?.seconds) return false;
+                const clientDate = new Date(c.createdAt.seconds * 1000);
+                return clientDate.setHours(0, 0, 0, 0) === date.getTime();
+            }).length;
+            return {
+                label: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][date.getDay()],
+                val: count
+            };
+        });
+
+        const maxCount = Math.max(...counts.map(d => d.val), 1);
+
+        return counts.map(d => ({
+            label: d.label,
+            val: d.val,
+            height: Math.max((d.val / maxCount) * 100, 5) // At least 5% so we see a tiny bar
+        }));
+    }, [clients]);
+
     return (
         <div className="space-y-8 min-h-screen pb-10">
             {/* Header Section */}
@@ -132,21 +162,25 @@ export default function ClientsPage() {
                         <BarChart className="w-5 h-5 text-muted-foreground" />
                     </div>
                     <div className="flex items-end gap-2 h-32 w-full mt-4 justify-between px-4">
-                        {[40, 65, 45, 80, 55, 70, 40, 60].map((h, i) => (
-                            <div key={i} className="w-full bg-muted/40 rounded-t-lg relative group">
+                        {chartData.map((d, i) => (
+                            <div key={i} className="w-full bg-muted/40 rounded-t-lg relative group flex flex-col justify-end h-full">
                                 <div
-                                    className="absolute bottom-0 left-0 right-0 bg-primary/20 group-hover:bg-primary/40 transition-colors rounded-t-lg"
-                                    style={{ height: `${h}%` }}
+                                    className={`w-full rounded-t-lg relative transition-all duration-500 ease-out flex items-end justify-center ${d.val > 0 ? 'bg-primary/20 group-hover:bg-primary/40' : 'bg-transparent'}`}
+                                    style={{ height: `${d.height}%` }}
                                 >
-                                    {h === 80 && ( // Highlight peak
-                                        <div className="absolute inset-0 bg-primary rounded-t-lg opacity-100" />
+                                    {d.val > 0 && d.height === 100 && (
+                                        <div className="absolute inset-0 bg-primary rounded-t-lg opacity-100 shadow-[0_0_15px_rgba(var(--primary),0.5)]" />
                                     )}
+                                    {/* Tooltip on hover */}
+                                    <div className="absolute -top-8 bg-card border border-border px-2 py-1 rounded text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                        {d.val} clientes
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-between mt-2 text-xs text-muted-foreground px-2">
-                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    <div className="flex justify-between mt-2 text-xs text-muted-foreground px-4 font-medium uppercase tracking-widest">
+                        {chartData.map((d, i) => <span key={i} className="w-full text-center">{d.label}</span>)}
                     </div>
                 </div>
 
