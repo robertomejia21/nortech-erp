@@ -217,6 +217,10 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
 
     const moveCard = async (itemId: string, fromStageId: string, toStageId: string) => {
         if (fromStageId === toStageId) return;
+        if (fromStageId === 'won') {
+            alert("❌ No puedes regresar o mover una oportunidad que ya fue marcada como GANADA.");
+            return;
+        }
 
         try {
             // Find the item to check its type
@@ -323,6 +327,11 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
     };
 
     const handleDragStart = (e: React.DragEvent, itemId: string, fromStageId: string) => {
+        if (fromStageId === 'won') {
+            e.preventDefault();
+            alert("❌ No puedes mover una oportunidad que ya fue GANADA.");
+            return;
+        }
         e.dataTransfer.setData("itemId", itemId);
         e.dataTransfer.setData("fromStageId", fromStageId);
         e.dataTransfer.effectAllowed = "move";
