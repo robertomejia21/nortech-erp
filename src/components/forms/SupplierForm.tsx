@@ -4,6 +4,7 @@ import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "@/lib/firebase";
+import { parseConstancia } from "@/lib/parseConstancia";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Loader2, Save, UploadCloud, FileText, CheckCircle } from "lucide-react";
@@ -51,12 +52,21 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
 
             setFormData(prev => ({ ...prev, [field]: url }));
 
-            // "Mock" Auto-fill simply to delight user if they upload Constancia
-            if (field === 'taxSituationUrl' && !formData.name) {
-                // In a real app, we'd call an OCR API here.
-                // For now, we won't overwrite unless empty, to simulate "reading".
-                // const fakeExtract = { name: "Extracted Name S.A.", rfc: "EXT123456789" };
-                // setFormData(prev => ({ ...prev, name: fakeExtract.name, rfc: fakeExtract.rfc }));
+            // Auto-fill logic using parseConstancia
+            if (field === 'taxSituationUrl') {
+                try {
+                    const extractedData = await parseConstancia(file);
+
+                    setFormData(prev => ({
+                        ...prev,
+                        name: prev.name || extractedData.razonSocial || "",
+                        rfc: prev.rfc || extractedData.rfc || "",
+                        zipCode: prev.zipCode || extractedData.zipCode || "",
+                    }));
+                } catch (parseError) {
+                    console.error("Failed to parse PDF:", parseError);
+                    // Don't block upload if parsing fails
+                }
             }
 
         } catch (error: any) {
