@@ -1030,15 +1030,32 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                 </div>
 
                                                 <div className="pt-3 border-t border-border mt-3">
-                                                    <div className="flex justify-between items-end mb-1">
-                                                        <span className="text-sm font-medium text-muted-foreground">Precio Venta (Unit):</span>
-                                                        <span className="text-xl font-bold text-emerald-500">{formatCurrency(price)} {item.currency || "MXN"}</span>
+                                                    <div className="flex justify-between items-center mb-1 bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/20 focus-within:border-emerald-500/50 focus-within:bg-emerald-500/10 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                                                        <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Precio Venta:</span>
+                                                        <div className="flex items-center text-xl font-black text-emerald-600 dark:text-emerald-400">
+                                                            <span className="mr-0.5">$</span>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                className="w-24 bg-transparent border-none text-right focus:ring-0 p-0 font-black text-emerald-600 dark:text-emerald-400 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-[80px]"
+                                                                value={Number(price.toFixed(2))}
+                                                                onChange={(e) => {
+                                                                    const val = parseFloat(e.target.value);
+                                                                    if (cost > 0 && !isNaN(val)) {
+                                                                        updateItem(idx, 'margin', (val / cost) - 1);
+                                                                    } else if (e.target.value === "") {
+                                                                        updateItem(idx, 'margin', -1);
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <span className="ml-1 text-sm font-bold uppercase">{item.currency || "MXN"}</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex justify-between items-center text-xs">
+                                                    <div className="flex justify-between items-center text-xs mt-3 px-1">
                                                         <span className="text-muted-foreground">Total Línea ({item.quantity}):</span>
                                                         <span className="font-bold">{formatCurrency(price * item.quantity)} {item.currency || "MXN"}</span>
                                                     </div>
-                                                    <div className="text-right text-xs text-emerald-600/80 font-medium mt-1">
+                                                    <div className="text-right text-[11px] text-emerald-600/80 font-black mt-1 px-1">
                                                         + Ganancia: {formatCurrency(profit * item.quantity)} {item.currency || "MXN"}
                                                     </div>
                                                 </div>
