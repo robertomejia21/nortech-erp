@@ -91,23 +91,27 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
             if (authLoading || !user) return;
             try {
                 setDataLoading(true);
-                const clientsSnap = await getDocs(query(collection(db, "clients"), orderBy("razonSocial")));
-                const clientList = clientsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Client));
+                const clientsSnap = await getDocs(collection(db, "clients"));
+                const clientList = clientsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Client))
+                    .sort((a, b) => (a.razonSocial || "").localeCompare(b.razonSocial || ""));
                 setClients(clientList);
 
                 const [productsSnap, suppliersSnap] = await Promise.all([
-                    getDocs(query(collection(db, "products"), orderBy("name"))),
-                    getDocs(query(collection(db, "suppliers"), orderBy("name")))
+                    getDocs(collection(db, "products")),
+                    getDocs(collection(db, "suppliers"))
                 ]);
 
-                const supplierList = suppliersSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+                const supplierList = suppliersSnap.docs.map(d => ({ id: d.id, ...d.data() } as any))
+                    .sort((a: any, b: any) => (a.name || "").localeCompare(b.name || ""));
                 setSuppliers(supplierList);
 
-                setProducts(productsSnap.docs.map(d => {
+                const sortedProducts = productsSnap.docs.map(d => {
                     const data = d.data();
                     const s = supplierList.find(sup => sup.id === data.supplierId);
                     return { id: d.id, ...data, supplierName: s?.name } as Product;
-                }));
+                }).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+                setProducts(sortedProducts);
 
                 // Load existing quote if initialId is provided
                 if (initialId) {
@@ -518,11 +522,17 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                 .map(c => (
                                                     <option key={c.id} value={c.id}>{c.razonSocial} - {c.rfc || 'Sin RFC'}</option>
                                                 ))}
+                                            {clientSearch && clients.filter(c =>
+                                                c.razonSocial.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                                                (c.rfc && c.rfc.toLowerCase().includes(clientSearch.toLowerCase()))
+                                            ).length === 0 && (
+                                                    <option disabled value="">No se encontraron resultados para "{clientSearch}"</option>
+                                                )}
                                         </select>
                                         <button
                                             onClick={() => {
                                                 setIsEditingClient(false);
-                                                setNewClientData({ razonSocial: "", rfc: "", email: "", phone: "", contactName: "" });
+                                                setNewClientData({ razonSocial: clientSearch, rfc: "", email: "", phone: "", contactName: "" });
                                                 setNewClientMode(true);
                                             }}
                                             className="btn-secondary whitespace-nowrap px-6"

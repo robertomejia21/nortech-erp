@@ -27,8 +27,8 @@ export default function PurchaseOrderForm() {
 
     useEffect(() => {
         const loadData = async () => {
-            const suppSnap = await getDocs(query(collection(db, "suppliers"), orderBy("name")));
-            setSuppliers(suppSnap.docs.map(d => ({ id: d.id, ...d.data() } as Supplier)));
+            const suppSnap = await getDocs(collection(db, "suppliers"));
+            setSuppliers(suppSnap.docs.map(d => ({ id: d.id, ...d.data() } as Supplier)).sort((a, b) => (a.name || "").localeCompare(b.name || "")));
 
             // Only show accepted/sent quotes that don't have an order yet (logic omitted for simplicity)
             const quoteSnap = await getDocs(query(collection(db, "quotations"), orderBy("createdAt", "desc")));
