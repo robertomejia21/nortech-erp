@@ -380,9 +380,20 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
 
             // Enrich items with calculated unit prices for reporting and display
             const enrichedItems = items.map(item => {
+                const itemCurrency = item.currency || "MXN";
                 const cost = (item.basePrice || 0) + (item.importCost || 0) + (item.freightCost || 0);
-                const unitPrice = cost * (1 + (item.margin || 0));
-                return { ...item, unitPrice };
+                const priceInItemCurrency = cost * (1 + (item.margin || 0));
+
+                let unitPrice = priceInItemCurrency;
+                if (itemCurrency !== currency) {
+                    if (itemCurrency === "USD" && currency === "MXN") {
+                        unitPrice = priceInItemCurrency * exchangeRate;
+                    } else if (itemCurrency === "MXN" && currency === "USD") {
+                        unitPrice = priceInItemCurrency / exchangeRate;
+                    }
+                }
+
+                return { ...item, unitPrice, total: unitPrice * item.quantity };
             });
 
             const quoteData = {
@@ -426,10 +437,28 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
 
     const handleGeneratePDF = () => {
         const client = clients.find(c => c.id === selectedClientId) || newClientData;
+
+        const enrichedItems = items.map(item => {
+            const itemCurrency = item.currency || "MXN";
+            const cost = (item.basePrice || 0) + (item.importCost || 0) + (item.freightCost || 0);
+            const priceInItemCurrency = cost * (1 + (item.margin || 0));
+
+            let unitPrice = priceInItemCurrency;
+            if (itemCurrency !== currency) {
+                if (itemCurrency === "USD" && currency === "MXN") {
+                    unitPrice = priceInItemCurrency * exchangeRate;
+                } else if (itemCurrency === "MXN" && currency === "USD") {
+                    unitPrice = priceInItemCurrency / exchangeRate;
+                }
+            }
+
+            return { ...item, unitPrice, total: unitPrice * item.quantity };
+        });
+
         const quoteCheck = {
             folio: folio || "PREVIEW",
-            items,
-            financials: { subtotal, taxRate, taxAmount, total, currency },
+            items: enrichedItems,
+            financials: { subtotal, taxRate, taxAmount, total, currency, exchangeRate },
             notes
         };
         // @ts-ignore
