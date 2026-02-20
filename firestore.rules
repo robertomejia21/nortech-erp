@@ -18,31 +18,40 @@ service cloud.firestore {
       return hasRole('SUPERADMIN');
     }
 
+    function isAdminOrAbove() {
+      return hasRole('SUPERADMIN') || hasRole('ADMIN');
+    }
+
     // Default: Deny everything NOT explicitly allowed
     match /{document=**} {
       allow read, write: if false;
     }
     
     // Users Collection
-    // Each user can read their own profile
-    // Only SUPERADMIN can manage all users
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated(); // Allow initial creation during sign-up
+      allow create: if isAuthenticated();
       allow update: if isSuperAdmin() || request.auth.uid == userId;
       allow delete: if isSuperAdmin();
     }
 
     // CRM: Clients & Suppliers
-    // Sales, Admin, SuperAdmin can read/write
     match /clients/{clientId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated(); // Broadly allow authenticated users to manage clients for now
+      allow write: if isAuthenticated();
     }
     
     match /suppliers/{supplierId} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
+    }
+
+    // CRM Pipeline: Leads
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdminOrAbove();
     }
 
     // Products
@@ -64,11 +73,34 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
-    
+
+    // Purchase Orders (Órdenes de Compra)
+    match /purchaseOrders/{orderId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Warehouse / Inventory
+    match /inventory/{itemId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /receivals/{receivalsId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Finance
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
     // Notifications
     match /notifications/{notificationId} {
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow write: if isAuthenticated(); // Allow system to write notifications
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
   }
 }

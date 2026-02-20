@@ -38,15 +38,31 @@ export default function SuppliersPage() {
         setLoading(true);
         setError(null);
         try {
-            const q = query(collection(db, "suppliers"), orderBy("name", "asc"));
+            // Use createdAt for ordering — more reliable than name (which may be missing)
+            const q = query(collection(db, "suppliers"), orderBy("createdAt", "desc"));
             const querySnapshot = await getDocs(q);
             const list: Supplier[] = [];
             querySnapshot.forEach((doc) => {
                 list.push({ id: doc.id, ...doc.data() } as Supplier);
             });
+            // Sort client-side by name as fallback
+            list.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'es'));
             setSuppliers(list);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching suppliers:", error);
+            // If index error, try without orderBy
+            if (error?.code === 'failed-precondition' || error?.code === 'unimplemented') {
+                try {
+                    const qFallback = query(collection(db, "suppliers"));
+                    const snap = await getDocs(qFallback);
+                    const list: Supplier[] = snap.docs.map(d => ({ id: d.id, ...d.data() } as Supplier));
+                    list.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'es'));
+                    setSuppliers(list);
+                    return;
+                } catch (e2) {
+                    console.error("Fallback query also failed:", e2);
+                }
+            }
             setError("No se pudieron cargar los proveedores. Intenta recargar la página.");
         } finally {
             setLoading(false);
