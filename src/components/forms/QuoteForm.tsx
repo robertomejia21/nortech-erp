@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
     Loader2, Plus, Trash2, Calculator, Users, Package,
     FileText, Send, CheckCircle2, ChevronRight, ChevronLeft,
-    Printer, Download, Search, X, Check, Truck, Edit2, Coins, HelpCircle
+    Printer, Download, Search, X, Check, Truck, Edit2, Coins, HelpCircle, AlertTriangle
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { generateQuotePDF } from "@/lib/pdfGenerator";
@@ -1017,27 +1017,36 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                 </div>
 
                                                 <div className="bg-muted/30 p-3 rounded-lg border border-border/50">
-                                                    <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 flex justify-between">
-                                                        <span>Margen de Utilidad</span>
-                                                        <span className="text-primary">{(item.margin * 100).toFixed(0)}%</span>
+                                                    <label className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 flex items-center justify-between">
+                                                        <span className="flex items-center gap-1">
+                                                            Margen de Utilidad
+                                                            {item.margin < 0.15 && (
+                                                                <span className="bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded text-[9px] flex items-center gap-1">
+                                                                    <AlertTriangle className="w-3 h-3" /> Min 15%
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                        <span className={item.margin < 0.15 ? "text-amber-500 font-black text-sm" : "text-primary text-xs"}>
+                                                            {(item.margin * 100).toFixed(0)}%
+                                                        </span>
                                                     </label>
                                                     <input
                                                         type="range" min="0" max="100" step="1"
                                                         value={Math.round(item.margin * 100)}
                                                         onChange={(e) => updateItem(idx, 'margin', Number(e.target.value) / 100)}
-                                                        className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                                        className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${item.margin < 0.15 ? "bg-amber-500/20 accent-amber-500" : "bg-muted accent-primary"}`}
                                                     />
                                                 </div>
 
                                                 <div className="pt-3 border-t border-border mt-3">
-                                                    <div className="flex justify-between items-center mb-1 bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/20 focus-within:border-emerald-500/50 focus-within:bg-emerald-500/10 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                                                        <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Precio Venta:</span>
-                                                        <div className="flex items-center text-xl font-black text-emerald-600 dark:text-emerald-400">
+                                                    <div className={`flex justify-between items-center mb-1 ${item.margin < 0.15 ? 'bg-amber-500/5 border-amber-500/20 focus-within:border-amber-500/50 focus-within:bg-amber-500/10 focus-within:ring-amber-500/20' : 'bg-emerald-500/5 border-emerald-500/20 focus-within:border-emerald-500/50 focus-within:bg-emerald-500/10 focus-within:ring-emerald-500/20'} p-2 rounded-lg border focus-within:ring-2 transition-all`}>
+                                                        <span className={`text-sm font-bold ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-700 dark:text-emerald-400'}`}>Precio Venta:</span>
+                                                        <div className={`flex items-center text-xl font-black ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                             <span className="mr-0.5">$</span>
                                                             <input
                                                                 type="number"
                                                                 step="0.01"
-                                                                className="w-24 bg-transparent border-none text-right focus:ring-0 p-0 font-black text-emerald-600 dark:text-emerald-400 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-[80px]"
+                                                                className={`w-24 bg-transparent border-none text-right focus:ring-0 p-0 font-black ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-400'} [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-[80px]`}
                                                                 value={Number(price.toFixed(2))}
                                                                 onChange={(e) => {
                                                                     const val = parseFloat(e.target.value);
@@ -1055,7 +1064,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                         <span className="text-muted-foreground">Total Línea ({item.quantity}):</span>
                                                         <span className="font-bold">{formatCurrency(price * item.quantity)} {item.currency || "MXN"}</span>
                                                     </div>
-                                                    <div className="text-right text-[11px] text-emerald-600/80 font-black mt-1 px-1">
+                                                    <div className={`text-right text-[11px] font-black mt-1 px-1 ${item.margin < 0.15 ? "text-amber-600" : "text-emerald-600/80"}`}>
                                                         + Ganancia: {formatCurrency(profit * item.quantity)} {item.currency || "MXN"}
                                                     </div>
                                                 </div>
