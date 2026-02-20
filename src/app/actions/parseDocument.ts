@@ -1,0 +1,71 @@
+"use server";
+
+import { GoogleGenAI } from "@google/genai";
+
+// We initialize the client inside the Server Action to keep it secure
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+export interface ConstanciaData {
+    rfc?: string;
+    razonSocial?: string;
+    zipCode?: string;
+}
+
+/**
+ * Server action that takes raw text from a PDF and uses Gemini to extract structured info.
+ */
+export async function extractSupplierInfoWithAI(rawText: string): Promise<ConstanciaData> {
+    if (!process.env.GEMINI_API_KEY) {
+        console.error("Missing GEMINI_API_KEY");
+        return {};
+    }
+
+    try {
+        const prompt = `
+Eres un asistente experto en contabilidad mexicana. 
+A continuación te proporcionaré el texto sin formato extraído de un archivo PDF de una 'Constancia de Situación Fiscal' del SAT (México).
+
+Por favor, extrae exactamente estos 3 campos de texto:
+1. RFC (R.F.C.)
+2. Razón Social (Denominación/Razón Social o el Nombre completo si es persona física)
+3. Código Postal (CP / ZipCode)
+
+Devuelve tu respuesta ÚNICAMENTE como un objeto JSON válido, sin formato markdown (\`\`\`json) ni texto adicional.
+Las llaves del JSON deben ser exactamente:
+{
+  "rfc": "...",
+  "razonSocial": "...",
+  "zipCode": "..."
+}
+
+Si no encuentras un dato, déjalo como string vacío "".
+
+Texto del documento:
+---
+${rawText}
+---
+        `;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                temperature: 0.1, // Low temperature for factual extraction
+                responseMimeType: "application/json"
+            }
+        });
+
+        const resultText = response.text;
+
+        if (!resultText) {
+            throw new Error("No response from AI");
+        }
+
+        const data = JSON.parse(resultText) as ConstanciaData;
+        return data;
+
+    } catch (error) {
+        console.error("Error extracting document with AI:", error);
+        return {}; // Return empty to not break the frontend
+    }
+}
