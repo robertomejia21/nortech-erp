@@ -404,8 +404,8 @@ export default function QuoteDetailPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsConvertModalOpen(false)} />
                     <div className="relative bg-card w-full max-w-md rounded-2xl border border-border shadow-2xl overflow-hidden animate-in zoom-in-95">
-                        <div className="p-6 border-b border-border bg-emerald-50 dark:bg-emerald-950/30">
-                            <h2 className="text-xl font-bold flex items-center gap-2">
+                        <div className="p-6 border-b border-border bg-emerald-500/10">
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                                 Confirmar Venta
                             </h2>
