@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from "@google/genai";
 
+export const runtime = 'edge'; // Force Edge Runtime to bypass Node.js static build env-var stripping
 export async function POST(req: Request) {
     // FORCE READ AT RUNTIME
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
