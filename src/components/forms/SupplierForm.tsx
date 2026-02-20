@@ -63,9 +63,15 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
                         rfc: prev.rfc || extractedData.rfc || "",
                         zipCode: prev.zipCode || extractedData.zipCode || "",
                     }));
-                } catch (parseError) {
+
+                    if (extractedData.rfc || extractedData.razonSocial) {
+                        alert("¡Datos extraídos con Inteligencia Artificial exitosamente!");
+                    } else {
+                        alert("La Inteligencia Artificial analizó el documento pero devolvió datos vacíos. Verifica el archivo.");
+                    }
+                } catch (parseError: any) {
                     console.error("Failed to parse PDF:", parseError);
-                    // Don't block upload if parsing fails
+                    alert(`Error de lectura inteligente: ${parseError?.message || "Desconocido"}`);
                 }
             }
 

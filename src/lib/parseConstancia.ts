@@ -42,8 +42,8 @@ export async function parseConstancia(file: File): Promise<ConstanciaData> {
 
         return data;
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error parsing PDF Constancia:", error);
-        return {}; // Return empty object on failure so it doesn't break the app
+        throw new Error(error?.message || "Error al procesar el PDF o conectar con la IA.");
     }
 }
