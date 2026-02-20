@@ -1003,7 +1003,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                             <div className="absolute top-0 right-0 p-2 bg-primary/10 rounded-bl-xl border-l border-b border-primary/10">
                                                 <span className="text-xs font-bold text-primary font-mono">#{idx + 1}</span>
                                             </div>
-                                            <h3 className="font-bold text-foreground mb-4 pr-8 truncate" title={item.productName}>{item.productName || "Producto sin nombre"}</h3>
+                                            <h3 className="font-bold text-foreground mb-4 pr-8 line-clamp-3 leading-tight" title={item.productName}>{item.productName || "Producto sin nombre"}</h3>
 
                                             <div className="space-y-4">
                                                 <div className="flex justify-between text-sm items-center">
@@ -1042,11 +1042,12 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                                     <div className={`flex justify-between items-center mb-1 ${item.margin < 0.15 ? 'bg-amber-500/5 border-amber-500/20 focus-within:border-amber-500/50 focus-within:bg-amber-500/10 focus-within:ring-amber-500/20' : 'bg-emerald-500/5 border-emerald-500/20 focus-within:border-emerald-500/50 focus-within:bg-emerald-500/10 focus-within:ring-emerald-500/20'} p-2 rounded-lg border focus-within:ring-2 transition-all`}>
                                                         <span className={`text-sm font-bold ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-700 dark:text-emerald-400'}`}>Precio Venta:</span>
                                                         <div className={`flex items-center text-xl font-black ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                                            <Edit2 className={`w-3 h-3 mr-1 ${item.margin < 0.15 ? 'text-amber-500/50' : 'text-emerald-500/50'}`} />
                                                             <span className="mr-0.5">$</span>
                                                             <input
                                                                 type="number"
                                                                 step="0.01"
-                                                                className={`w-24 bg-transparent border-none text-right focus:ring-0 p-0 font-black ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-400'} [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-[80px]`}
+                                                                className={`w-24 bg-transparent border-b-2 border-dashed border-emerald-500/30 text-right focus:border-emerald-500/80 focus:ring-0 p-0 font-black ${item.margin < 0.15 ? 'text-amber-600 dark:text-amber-500 border-amber-500/30 focus:border-amber-500/80' : 'text-emerald-600 dark:text-emerald-400'} [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-[80px] transition-colors hover:border-emerald-500`}
                                                                 value={Number(price.toFixed(2))}
                                                                 onChange={(e) => {
                                                                     const val = parseFloat(e.target.value);
