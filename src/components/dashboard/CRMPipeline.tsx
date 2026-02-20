@@ -226,7 +226,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
             if ((item as any).type === 'QUOTE') {
                 let newStatus = "DRAFT";
                 if (toStageId === 'negotiation') newStatus = "FINALIZED";
-                if (toStageId === 'won') newStatus = "FINALIZED"; // Or "APPROVED" if you have it
+                if (toStageId === 'won') newStatus = "ACCEPTED";
 
                 await updateDoc(doc(db, "quotations", itemId), {
                     status: newStatus,
