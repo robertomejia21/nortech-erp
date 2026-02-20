@@ -2,6 +2,15 @@ import { NextResponse } from 'next/server';
 import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req: Request) {
+    // FORCE READ AT RUNTIME
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+    // DEBUG LOGGING TO VERCEL CONSOLE
+    console.log("=== API ROUTE EXECUTION ===");
+    console.log("Environment Keys Count:", Object.keys(process.env).length);
+    console.log("GEMINI_API_KEY Type:", typeof process.env.GEMINI_API_KEY);
+    console.log("Loaded API Key Length:", apiKey ? apiKey.length : 0);
+
     try {
         const body = await req.json();
         const { rawText } = body;
@@ -10,12 +19,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No text provided" }, { status: 400 });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
-            console.error("Missing GEMINI_API_KEY");
-            return NextResponse.json({ error: "Missing API Key Configuration" }, { status: 500 });
+        if (!apiKey) {
+            console.error("Missing GEMINI_API_KEY in Vercel Edge Runtime.");
+            // We expose exactly what we see for debugging
+            return NextResponse.json({ error: `Missing API Key Configuration. Env Keys total: ${Object.keys(process.env).length}` }, { status: 500 });
         }
 
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const ai = new GoogleGenAI({ apiKey: apiKey });
 
 
         const prompt = `
