@@ -35,7 +35,6 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 const navigation = {
     SUPERADMIN: [
         { name: "Radiografía Corporativa", href: "/dashboard", icon: Activity },
-        { name: "Panel Principal", href: "/dashboard", icon: LayoutDashboard },
         { name: "CRM Pipeline", href: "/dashboard/sales/crm", icon: Target },
         { name: "Usuarios", href: "/dashboard/users", icon: Users },
         { name: "Cotizaciones", href: "/dashboard/sales/quotes", icon: FileText },
