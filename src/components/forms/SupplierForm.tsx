@@ -59,9 +59,9 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
                 // setFormData(prev => ({ ...prev, name: fakeExtract.name, rfc: fakeExtract.rfc }));
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error uploading file:", error);
-            alert("Error al subir el archivo");
+            alert(`Error al subir el archivo: ${error.message || error.code || 'Desconocido'}`);
         } finally {
             setUploading(prev => ({ ...prev, [field]: false }));
         }
