@@ -44,6 +44,7 @@ interface CRMItem {
     status: string;
     progress: number;
     collaborators: string[];
+    type?: 'LEAD' | 'QUOTE';
 }
 
 interface CRMStage {
@@ -630,11 +631,11 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                                     onDragEnd={handleDragEnd}
                                     onInvite={() => handleInviteClick(item.id, stage.id, item.client)}
                                     onComplete={() => {
-                                        if (stage.id === 'leads' || stage.id === 'quotes') {
+                                        if (item.type === 'QUOTE') {
+                                            window.location.href = `/dashboard/sales/quotes/${item.id}`;
+                                        } else if (stage.id === 'leads' || stage.id === 'quotes') {
                                             const params = new URLSearchParams({ client: item.client, amount: item.amount.toString() });
                                             window.location.href = `/dashboard/sales/quotes/new?${params.toString()}`;
-                                        } else if (stage.id === 'negotiation') {
-                                            window.location.href = `/dashboard/sales/orders/new`;
                                         } else if (stage.id === 'won') {
                                             window.location.href = `/dashboard/finance`;
                                         } else {
@@ -722,9 +723,9 @@ function CRMCard({ item, color, onMove, onDragStart, onDragEnd, onInvite, onComp
     const getStageAction = (status: string, defaultTask: string) => {
         switch (status) {
             case 'leads': return "Crear cotización";
-            case 'quotes': return "Enviar cotización";
-            case 'negotiation': return "Enviar orden de compra";
-            case 'won': return "Solicitar factura";
+            case 'quotes': return "Crear / Ajustar cotización";
+            case 'negotiation': return "Confirmar Venta";
+            case 'won': return "Ir a Finanzas (Cobranza)";
             default: return defaultTask;
         }
     };
