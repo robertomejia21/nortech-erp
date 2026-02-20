@@ -134,8 +134,10 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                     const clientParam = searchParams.get("client");
                     if (clientParam) {
                         const matchedClient = clientList.find(c =>
-                            c.razonSocial.toLowerCase() === clientParam.toLowerCase() ||
-                            c.razonSocial.toLowerCase().includes(clientParam.toLowerCase())
+                            c.razonSocial && (
+                                c.razonSocial.toLowerCase() === clientParam.toLowerCase() ||
+                                c.razonSocial.toLowerCase().includes(clientParam.toLowerCase())
+                            )
                         );
                         if (matchedClient) {
                             setSelectedClientId(matchedClient.id);
@@ -556,14 +558,14 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                             <option value="">Selecciona un cliente...</option>
                                             {clients
                                                 .filter(c =>
-                                                    c.razonSocial.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                                                    (c.razonSocial && c.razonSocial.toLowerCase().includes(clientSearch.toLowerCase())) ||
                                                     (c.rfc && c.rfc.toLowerCase().includes(clientSearch.toLowerCase()))
                                                 )
                                                 .map(c => (
                                                     <option key={c.id} value={c.id}>{c.razonSocial} - {c.rfc || 'Sin RFC'}</option>
                                                 ))}
                                             {clientSearch && clients.filter(c =>
-                                                c.razonSocial.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                                                (c.razonSocial && c.razonSocial.toLowerCase().includes(clientSearch.toLowerCase())) ||
                                                 (c.rfc && c.rfc.toLowerCase().includes(clientSearch.toLowerCase()))
                                             ).length === 0 && (
                                                     <option disabled value="">No se encontraron resultados para "{clientSearch}"</option>
