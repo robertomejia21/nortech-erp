@@ -17,9 +17,10 @@ type Order = {
     quoteFolio: string;
     clientName: string;
     financials: { total: number; currency: string };
-    status: 'PENDING' | 'APPROVED' | 'PO_SENT' | 'COMPLETED' | 'CANCELLED';
+    status: 'PENDING' | 'APPROVED' | 'PO_SENT' | 'COMPLETED' | 'CANCELLED' | 'PENDING_CREATION';
     createdAt: any;
     clientOcFolio: string;
+    type?: 'ORDER' | 'QUOTE';
 };
 
 export default function OrdersListPage() {
@@ -51,30 +52,69 @@ export default function OrdersListPage() {
     const fetchOrders = async (isBackground = false) => {
         if (!isBackground) setLoading(true);
         try {
-            let q;
-            const ordersRef = collection(db, "orders");
+            // 1. Fetch clients to get their names for quotes
+            const clientsMap: any = {};
+            const snapClients = await getDocs(collection(db, "clients"));
+            snapClients.forEach(c => clientsMap[c.id] = c.data().razonSocial);
 
-            // Filters based on role
+            // 2. Fetch real orders
+            let qOrders;
+            const ordersRef = collection(db, "orders");
             if (role === 'SUPERADMIN' || role === 'ADMIN' || role === 'FINANCE') {
-                q = query(ordersRef, orderBy("createdAt", "desc"));
+                qOrders = query(ordersRef, orderBy("createdAt", "desc"));
             } else {
-                q = query(
+                qOrders = query(
                     ordersRef,
                     where("salesRepId", "==", user?.uid),
                     orderBy("createdAt", "desc")
                 );
             }
-
-            const querySnapshot = await getDocs(q);
-            const list: Order[] = [];
+            const querySnapshot = await getDocs(qOrders);
+            const listOrders: Order[] = [];
             querySnapshot.forEach((doc) => {
-                list.push({ id: doc.id, ...doc.data() } as Order);
+                listOrders.push({ id: doc.id, ...doc.data(), type: 'ORDER' } as Order);
             });
-            setOrders(list);
+
+            // 3. Fetch Pending Quotes (ACCEPTED / FINALIZED)
+            let qQuotes;
+            const quotesRef = collection(db, "quotations");
+            if (role === 'SUPERADMIN' || role === 'ADMIN' || role === 'FINANCE') {
+                qQuotes = query(quotesRef, where("status", "in", ["ACCEPTED", "FINALIZED"]), orderBy("createdAt", "desc"));
+            } else {
+                qQuotes = query(
+                    quotesRef,
+                    where("salesRepId", "==", user?.uid),
+                    where("status", "in", ["ACCEPTED", "FINALIZED"]),
+                    orderBy("createdAt", "desc")
+                );
+            }
+            const quotesSnapshot = await getDocs(qQuotes);
+            const listQuotes: Order[] = quotesSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    quoteFolio: data.folio || doc.id.substring(0, 6),
+                    clientName: clientsMap[data.clientId] || 'Cliente',
+                    financials: data.financials,
+                    status: 'PENDING_CREATION',
+                    createdAt: data.createdAt,
+                    clientOcFolio: 'Falta OC Interna',
+                    type: 'QUOTE'
+                } as Order;
+            });
+
+            // 4. Merge & Sort
+            const mergedList = [...listQuotes, ...listOrders].sort((a, b) => {
+                const dateA = a.createdAt?.seconds || 0;
+                const dateB = b.createdAt?.seconds || 0;
+                return dateB - dateA;
+            });
+
+            setOrders(mergedList);
 
             // Update cache
             if (user?.uid) {
-                localStorage.setItem(`orders_list_${user.uid}`, JSON.stringify(list));
+                localStorage.setItem(`orders_list_${user.uid}`, JSON.stringify(mergedList));
             }
         } catch (error) {
             console.error("Error fetching orders:", error);
@@ -91,6 +131,7 @@ export default function OrdersListPage() {
 
     const getStatusStyles = (status: string) => {
         switch (status) {
+            case 'PENDING_CREATION': return 'bg-purple-100 text-purple-700 border-purple-200 animate-pulse';
             case 'PENDING': return 'bg-amber-100 text-amber-700 border-amber-200';
             case 'APPROVED': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'PO_SENT': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
@@ -102,6 +143,7 @@ export default function OrdersListPage() {
 
     const getStatusLabel = (status: string) => {
         switch (status) {
+            case 'PENDING_CREATION': return 'En Espera de Admin';
             case 'PENDING': return 'Pendiente Admin';
             case 'APPROVED': return 'Aprobada';
             case 'PO_SENT': return 'OC Enviada a Proveedor';
@@ -223,12 +265,30 @@ export default function OrdersListPage() {
                                             {formatCurrency(order.financials?.total || 0)} {order.financials?.currency || 'MXN'}
                                         </td>
                                         <td className="p-4 text-center">
-                                            <Link
-                                                href={`/dashboard/sales/orders/${order.id}`}
-                                                className="btn-ghost p-2 hover:text-primary transition-colors inline-block"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </Link>
+                                            {order.type === 'QUOTE' ? (
+                                                role === 'ADMIN' || role === 'SUPERADMIN' ? (
+                                                    <Link
+                                                        href={`/dashboard/admin/orders/new?quoteId=${order.id}`}
+                                                        className="btn-primary p-2 text-xs flex items-center justify-center gap-1 inline-flex shadow-sm"
+                                                    >
+                                                        Registrar OC
+                                                    </Link>
+                                                ) : (
+                                                    <Link
+                                                        href={`/dashboard/sales/quotes/${order.id}`}
+                                                        className="btn-ghost p-2 hover:text-primary transition-colors inline-block"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </Link>
+                                                )
+                                            ) : (
+                                                <Link
+                                                    href={`/dashboard/sales/orders/${order.id}`}
+                                                    className="btn-ghost p-2 hover:text-primary transition-colors inline-block"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </Link>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
