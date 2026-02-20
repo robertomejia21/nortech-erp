@@ -256,7 +256,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
         e.preventDefault();
         if (!user) return;
 
-        // Capture current data before clearing form
+        const tempId = `temp_${Date.now()}`;
         const leadData = {
             client: newLeadData.client,
             amount: Number(newLeadData.amount),
@@ -271,7 +271,26 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
             updatedAt: serverTimestamp()
         };
 
-        // UI OPTIMIZATION: Close modal immediately giving instant feedback
+        // OPTIMISTIC UI: Add to stages immediately so it shows without waiting
+        const optimisticItem = {
+            id: tempId,
+            type: 'LEAD',
+            client: leadData.client,
+            amount: leadData.amount,
+            task: leadData.task,
+            priority: leadData.priority as any,
+            status: leadData.status,
+            progress: leadData.progress,
+            daysPast: 0,
+            collaborators: []
+        };
+        setStages(prev => prev.map(stage =>
+            stage.id === leadData.status
+                ? { ...stage, items: [optimisticItem as any, ...stage.items] }
+                : stage
+        ));
+
+        // Close modal immediately
         setIsNewLeadModalOpen(false);
         setNewLeadData({ client: "", amount: "", task: "", priority: "medium" });
 
@@ -282,13 +301,17 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                 const params = new URLSearchParams({ client: leadData.client, amount: leadData.amount.toString() });
                 router.push(`/dashboard/sales/quotes/new?${params.toString()}`);
             } else {
-                setActiveMessage(`Nueva oportunidad creada para ${leadData.client} 🚀`);
+                setActiveMessage(`Nueva oportunidad creada para ${leadData.client} \uD83D\uDE80`);
                 setTimeout(() => setActiveMessage(null), 3000);
             }
         } catch (error) {
             console.error("Error creating lead:", error);
+            // Remove the optimistic item on failure
+            setStages(prev => prev.map(stage => ({
+                ...stage,
+                items: stage.items.filter(i => i.id !== tempId)
+            })));
             alert("Error al crear la oportunidad, revisa tu conexión.");
-            // Re-open in case of failure to prevent data loss
             setIsNewLeadModalOpen(true);
             setNewLeadData({
                 client: leadData.client,
@@ -756,35 +779,23 @@ function CRMCard({ item, color, onMove, onDragStart, onDragEnd, onInvite, onComp
                 </div>
             </div>
 
-            {/* Interactive Suggested Activity */}
-            <div
+            {/* Action Button - Clear CTA based on stage */}
+            <button
+                type="button"
                 onClick={onComplete}
-                className="p-3 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-primary/40 group-hover:bg-primary/5 transition-all cursor-pointer relative overflow-hidden"
+                className="w-full p-3 rounded-xl bg-zinc-900/60 border border-white/5 hover:border-primary/60 hover:bg-primary/10 transition-all cursor-pointer text-left group/action"
             >
-                <div className="flex items-center gap-1.5 mb-1.5">
+                <div className="flex items-center gap-1.5 mb-2">
                     <Zap className="w-3 h-3 text-accent-cyan fill-current animate-pulse" />
-                    <span className="text-[9px] font-black uppercase text-accent-cyan tracking-widest">Acción</span>
+                    <span className="text-[9px] font-black uppercase text-accent-cyan tracking-widest">Acción recomendada</span>
                 </div>
-                <div className="flex items-center justify-between gap-1.5">
-                    <p className="text-[12px] font-black text-foreground/90 leading-tight line-clamp-1">
+                <div className="flex items-center justify-between gap-2">
+                    <p className="text-[12px] font-black text-foreground/90 leading-tight line-clamp-1 group-hover/action:text-primary transition-colors">
                         {getStageAction(item.status, item.task)}
                     </p>
-                    {item.status === 'quotes' && item.type !== 'QUOTE' ? (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); if (onConvertToQuote) onConvertToQuote(item); }}
-                            className="bg-accent-amber/20 text-accent-amber p-1.5 rounded-lg hover:bg-accent-amber hover:text-white transition-all group/btn flex items-center gap-1.5"
-                            title="Convertir a Cotización Real"
-                        >
-                            <FilePlus className="w-3.5 h-3.5" />
-                            <span className="text-[8px] font-bold">CREAR COTIZACIÓN</span>
-                        </button>
-                    ) : (
-                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center translate-x-3 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                        </div>
-                    )}
+                    <ArrowRight className="w-4 h-4 text-primary shrink-0 opacity-60 group-hover/action:opacity-100 group-hover/action:translate-x-0.5 transition-all" />
                 </div>
-            </div>
+            </button>
 
             {/* Progress Footer */}
             <div className="mt-5 flex items-center justify-between pt-4 border-t border-white/5">
