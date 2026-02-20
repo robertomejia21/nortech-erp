@@ -676,6 +676,16 @@ function CRMCard({ item, color, onMove, onDragStart, onDragEnd, onInvite, onComp
         critical: "bg-red-500/10 text-red-500 border-red-500/30 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]"
     };
 
+    const getStageAction = (status: string, defaultTask: string) => {
+        switch (status) {
+            case 'leads': return "Crear cotización";
+            case 'quotes': return "Enviar cotización";
+            case 'negotiation': return "Enviar orden de compra";
+            case 'won': return "Solicitar factura";
+            default: return defaultTask;
+        }
+    };
+
     return (
         <div
             draggable
@@ -746,7 +756,7 @@ function CRMCard({ item, color, onMove, onDragStart, onDragEnd, onInvite, onComp
                 </div>
                 <div className="flex items-center justify-between gap-1.5">
                     <p className="text-[12px] font-black text-foreground/90 leading-tight line-clamp-1">
-                        {item.task}
+                        {getStageAction(item.status, item.task)}
                     </p>
                     {item.status === 'quotes' && item.type !== 'QUOTE' ? (
                         <button
