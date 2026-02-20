@@ -17,6 +17,7 @@ import Link from "next/link";
 import SalesDashboard from "@/components/dashboard/SalesDashboard";
 import SuperAdminDashboard from "@/components/dashboard/SuperAdminDashboard";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
+import FinanceDashboard from "@/components/dashboard/FinanceDashboard";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -103,10 +104,10 @@ const shortcuts = {
         { name: "Reportes de Ventas", icon: TrendingUp, href: "/dashboard/sales/reports" },
     ],
     ADMIN: [
-        { name: "Nueva Cotización", icon: FileText, href: "/dashboard/sales/quotes" },
+        { name: "Nueva O. de Compra", icon: Package, href: "/dashboard/admin/orders/new" },
+        { name: "Cotizaciones Autorizadas", icon: FileText, href: "/dashboard/sales/quotes" },
         { name: "Ver Clientes", icon: Users, href: "/dashboard/sales/clients" },
-        { name: "Revisar Almacén", icon: Package, href: "/dashboard/warehouse" },
-        { name: "Estado Financiero", icon: DollarSign, href: "/dashboard/finance" },
+        { name: "Catálogo", icon: Package, href: "/dashboard/sales/products" },
     ],
     SALES: [
         { name: "Nueva Cotización", icon: FileText, href: "/dashboard/sales/quotes" },
@@ -239,6 +240,12 @@ export default function DashboardPage() {
                 <AdminDashboard
                     stats={stats}
                     shortcuts={shortcuts['ADMIN'] || []}
+                    salesData={salesData}
+                />
+            ) : role === 'FINANCE' ? (
+                <FinanceDashboard
+                    stats={stats}
+                    shortcuts={shortcuts['FINANCE'] || []}
                 />
             ) : (
                 <div className="space-y-6">

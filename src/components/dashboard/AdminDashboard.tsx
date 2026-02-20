@@ -3,55 +3,52 @@
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { db } from "@/lib/firebase";
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs, updateDoc, doc } from "firebase/firestore";
 import {
     FileText,
-    DollarSign,
+    TrendingUp,
     Package,
-    AlertCircle,
-    CheckCircle2,
     ArrowUpRight,
-    Search,
-    Upload,
-    ShoppingCart
+    ShoppingCart,
+    MessageSquare,
+    CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import InvoiceUploadModal from "@/components/modals/InvoiceUploadModal";
 
-export default function AdminDashboard({ stats, shortcuts }: { stats: any[], shortcuts: any[] }) {
+export default function AdminDashboard({ stats, shortcuts, salesData }: { stats: any[], shortcuts: any[], salesData: any[] }) {
     const { user } = useAuthStore();
-    const [pendingInvoices, setPendingInvoices] = useState<any[]>([]);
-    const [activeOrders, setActiveOrders] = useState<any[]>([]);
+    const [pendingQuotes, setPendingQuotes] = useState<any[]>([]); // Quotes waiting for PO
+    const [supportRequests, setSupportRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // 1. Fetch Orders needing Invoices (Status active AND invoiceStatus != UPLOADED)
-                // Note: Firestore != queries are limited. We'll fetch active orders and filter client-side or use separate queries.
-                // For efficiency in this demo, we'll fetch recent active orders and filter.
-                const qOrders = query(
-                    collection(db, "orders"),
-                    where("status", "in", ["APPROVED", "PO_SENT", "GOODS_RECEIVED", "COMPLETED", "PAID"]),
-                    orderBy("createdAt", "desc"),
-                    limit(20)
+                // 1. Fetch Cotizaciones Autorizadas listos para generar Orden de Compra (FINALIZED / ACCEPTED)
+                const qQuotes = query(
+                    collection(db, "quotations"),
+                    where("status", "in", ["FINALIZED", "ACCEPTED"]),
+                    orderBy("createdAt", "desc")
                 );
+                const snapQuotes = await getDocs(qQuotes);
+                const authorizedQuotes = snapQuotes.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const snapshot = await getDocs(qOrders);
-                const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Usually an admin creates an order and it links to a quote. 
+                // We could filter out quotes that already have orders if we queried orders. 
+                // Since this is a dashboard, showing recent ones is good enough.
+                setPendingQuotes(authorizedQuotes.slice(0, 10));
 
-                // Filter for Pending Invoices
-                const distinctPendingInvoices = orders.filter((o: any) => o.invoiceStatus !== 'UPLOADED');
-                setPendingInvoices(distinctPendingInvoices);
-
-                // Filter for "Ordenes de Compra" (Active, needing attention - e.g., APPROVED or PO_SENT)
-                // We'll just show the most recent active ones as "Ordenes de Compra Recientes"
-                const recentOrders = orders.filter((o: any) => ['APPROVED', 'PO_SENT'].includes(o.status));
-                setActiveOrders(recentOrders);
+                // 2. Fetch Support Requests
+                const qHelp = query(
+                    collection(db, "notifications"),
+                    where("type", "==", "SUPPORT_REQUEST"),
+                    orderBy("createdAt", "desc")
+                );
+                const snapHelp = await getDocs(qHelp);
+                const helps = snapHelp.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setSupportRequests(helps.slice(0, 10)); // Top 10 most recent
 
             } catch (error) {
                 console.error("Error fetching admin dashboard data:", error);
@@ -63,9 +60,16 @@ export default function AdminDashboard({ stats, shortcuts }: { stats: any[], sho
         fetchData();
     }, [user]);
 
-    const handleOpenUpload = (order: any) => {
-        setSelectedOrder(order);
-        setIsUploadModalOpen(true);
+    const handleResolveHelp = async (id: string) => {
+        try {
+            await updateDoc(doc(db, "notifications", id), {
+                read: true,
+                status: 'RESOLVED'
+            });
+            setSupportRequests(supportRequests.filter(req => req.id !== id));
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -87,130 +91,153 @@ export default function AdminDashboard({ stats, shortcuts }: { stats: any[], sho
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* SECTION 1: Facturas Pendientes */}
-                <div className="card-premium p-6 bg-card border-l-4 border-l-amber-500">
+                {/* SECTION 1: Solicitudes de Ayuda (Vendedores) */}
+                <div className="card-premium p-6 bg-card border-l-4 border-l-purple-500">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-amber-500" />
-                            <h2 className="text-lg font-bold text-foreground">Facturas Pendientes</h2>
+                            <MessageSquare className="w-5 h-5 text-purple-500" />
+                            <h2 className="text-lg font-bold text-foreground">Solicitudes de Ayuda</h2>
                         </div>
-                        <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-full">
-                            {pendingInvoices.length} Requeridas
+                        <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-xs font-bold px-2 py-1 rounded-full">
+                            {supportRequests.length} Solicitudes
                         </span>
                     </div>
 
                     <div className="space-y-3">
                         {loading ? (
                             <p className="text-sm text-muted-foreground">Cargando...</p>
-                        ) : pendingInvoices.length > 0 ? (
-                            pendingInvoices.slice(0, 5).map((order) => (
-                                <div key={order.id} className="p-4 rounded-xl bg-muted/30 border border-border hover:bg-muted/50 transition-colors flex items-center justify-between group">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-bold text-sm text-foreground">{order.quoteFolio}</p>
-                                            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                                {formatDate(new Date(order.createdAt.seconds * 1000))}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground truncate font-medium mt-0.5">{order.clientName}</p>
-                                        <p className="text-xs font-mono font-bold text-foreground mt-1 text-primary">
-                                            {formatCurrency(order.financials?.total || 0)}
-                                        </p>
+                        ) : supportRequests.length > 0 ? (
+                            supportRequests.map((req) => (
+                                <div key={req.id} className="p-4 rounded-xl bg-muted/30 border border-border flex flex-col gap-2">
+                                    <div className="flex justify-between items-start">
+                                        <p className="text-sm font-medium text-foreground">{req.message}</p>
+                                        <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0 ml-2">
+                                            {formatDate(new Date(req.createdAt?.seconds * 1000 || Date.now()))}
+                                        </span>
                                     </div>
-                                    <button
-                                        onClick={() => handleOpenUpload(order)}
-                                        className="btn-primary px-3 py-2 text-xs font-bold flex items-center gap-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <Upload className="w-3 h-3" /> Subir
-                                    </button>
+                                    <div className="flex justify-end pt-2">
+                                        <button onClick={() => handleResolveHelp(req.id)} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1">
+                                            <CheckCircle2 className="w-3 h-3" /> Marcar Resuelto
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         ) : (
                             <div className="text-center py-8 text-muted-foreground text-sm">
                                 <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-50" />
-                                ¡Todo al día! No hay facturas pendientes.
+                                Todos los vendedores están bien.
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* SECTION 2: Ordenes de Compra (Active Orders) */}
+                {/* SECTION 2: Cotizaciones a Procesar a OC */}
                 <div className="card-premium p-6 bg-card border-l-4 border-l-blue-500">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <ShoppingCart className="w-5 h-5 text-blue-500" />
-                            <h2 className="text-lg font-bold text-foreground">Órdenes de Compra Activas</h2>
+                            <h2 className="text-lg font-bold text-foreground">Autorizadas p/ Orden de Compra</h2>
                         </div>
-                        <Link href="/dashboard/sales/orders" className="text-xs text-primary hover:underline flex items-center gap-1">
-                            Ver Todas <ArrowUpRight className="w-3 h-3" />
+                        <Link href="/dashboard/admin/orders/new" className="text-xs text-primary hover:underline flex items-center gap-1">
+                            Crear Nueva OC <ArrowUpRight className="w-3 h-3" />
                         </Link>
                     </div>
 
                     <div className="space-y-3">
                         {loading ? (
                             <p className="text-sm text-muted-foreground">Cargando...</p>
-                        ) : activeOrders.length > 0 ? (
-                            activeOrders.slice(0, 5).map((order) => (
-                                <div key={order.id} className="p-4 rounded-xl bg-muted/30 border border-border hover:bg-muted/50 transition-colors flex items-center justify-between">
+                        ) : pendingQuotes.length > 0 ? (
+                            pendingQuotes.map((quote) => (
+                                <div key={quote.id} className="p-4 rounded-xl bg-muted/30 border border-border hover:bg-muted/50 transition-colors flex items-center justify-between">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-bold text-sm text-foreground">{order.quoteFolio}</p>
-                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${order.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' :
-                                                    order.status === 'PO_SENT' ? 'bg-blue-100 text-blue-700' :
-                                                        'bg-zinc-100 text-zinc-700'
-                                                }`}>
-                                                {order.status}
+                                            <p className="font-bold text-sm text-foreground">{quote.folio}</p>
+                                            <span className="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
+                                                Autorizada
                                             </span>
                                         </div>
-                                        <p className="text-xs text-muted-foreground truncate font-medium mt-0.5">{order.clientName}</p>
+                                        <p className="text-xs text-muted-foreground truncate font-medium mt-0.5 text-primary">
+                                            Vendedor ID: {quote.salesRepId}
+                                        </p>
                                     </div>
                                     <Link
-                                        href={`/dashboard/sales/orders/${order.id}`}
-                                        className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
+                                        href={`/dashboard/admin/orders/new?quoteId=${quote.id}`}
+                                        className="btn-primary flex items-center gap-2 px-3 py-1.5 text-xs shadow-sm"
                                     >
-                                        <ArrowUpRight className="w-4 h-4" />
+                                        <ShoppingCart className="w-3 h-3" /> Crear OC
                                     </Link>
                                 </div>
                             ))
                         ) : (
                             <div className="text-center py-8 text-muted-foreground text-sm">
-                                No hay órdenes activas recientes.
+                                No hay cotizaciones esperando Orden de Compra.
                             </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Other Stats Overview */}
-            <div>
-                <h3 className="text-lg font-bold text-foreground mb-4">Resumen Financiero y Operativo</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {stats.map((stat, index) => (
-                        <div key={stat.title} className="card-premium p-4 bg-card border border-border">
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg bg-${stat.accent}-500/10 text-${stat.accent}-500`}>
-                                    <stat.icon className="w-5 h-5" />
+            {/* SECTION 3: Sales Rep Performance */}
+            <div className="card-premium p-6 bg-card">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-foreground">Funcionamiento de Vendedores</h3>
+                        <p className="text-sm text-muted-foreground">Monitorea el progreso y las cuotas de tu equipo.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {salesData && salesData.length > 0 ? salesData.map((person) => {
+                        const progress = (person.quota / person.target) * 100;
+                        const isOverQuota = progress >= 100;
+
+                        return (
+                            <div
+                                key={person.name}
+                                className="flex flex-col items-center gap-4 p-5 rounded-xl bg-muted/30 border border-border"
+                            >
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm">
+                                    {person.name.substring(0, 2).toUpperCase()}
                                 </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground font-bold uppercase">{stat.title}</p>
-                                    <p className="text-lg font-black text-foreground">{stat.value}</p>
+
+                                <div className="text-center">
+                                    <p className="text-sm font-semibold text-foreground">{person.name}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        {isOverQuota ? '🏆 ' : ''}${person.quota}K / ${person.target}K
+                                    </p>
+                                </div>
+
+                                <div className="w-full">
+                                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                                        <div
+                                            className={`h-full rounded-full transition-all ${isOverQuota ? 'bg-gradient-to-r from-success to-success/80' : 'bg-gradient-to-r from-primary to-primary/80'}`}
+                                            style={{ width: `${Math.min(progress, 100)}%` }}
+                                        />
+                                    </div>
+                                    <p className={`text-xs font-medium text-center mt-1 ${isOverQuota ? 'text-success' : 'text-primary'}`}>
+                                        {progress.toFixed(0)}%
+                                    </p>
+                                </div>
+
+                                <div className="w-full space-y-1.5">
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-muted-foreground">Conversión:</span>
+                                        <span className="font-semibold text-foreground">{person.conversion}%</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-muted-foreground">Deals:</span>
+                                        <span className="font-semibold text-success">{person.deals}</span>
+                                    </div>
                                 </div>
                             </div>
+                        );
+                    }) : (
+                        <div className="col-span-full py-8 text-center text-muted-foreground text-sm">
+                            Cargando datos de vendedores u operando sin actividad reciente.
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
-
-            <InvoiceUploadModal
-                isOpen={isUploadModalOpen}
-                onClose={() => setIsUploadModalOpen(false)}
-                order={selectedOrder}
-                onUploadComplete={() => {
-                    // Refresh logic could be better, but for now we rely on the realtime/useEffect update or manual refresh
-                    // In a real app we'd trigger a re-fetch.
-                    window.location.reload(); // Simple reload to refresh data
-                }}
-            />
         </div>
     );
 }
