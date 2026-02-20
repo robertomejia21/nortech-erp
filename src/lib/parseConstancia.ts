@@ -4,8 +4,6 @@ import * as pdfjsLib from 'pdfjs-dist';
 // We use the CDN to avoid complex Webpack configuration issues in Next.js for the worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-import { extractSupplierInfoWithAI } from '@/app/actions/parseDocument';
-
 export interface ConstanciaData {
     rfc?: string;
     razonSocial?: string;
@@ -37,8 +35,20 @@ export async function parseConstancia(file: File): Promise<ConstanciaData> {
 
         console.log("Extracted PDF Text Length:", fullText.length);
 
-        // Let the Gemini AI handle the messy unstructured text
-        const data = await extractSupplierInfoWithAI(fullText);
+        // Call the new Next.js API route instead of the Server Action
+        // This avoids Vercel "Server Components render" crash with the GenAI SDK
+        const response = await fetch('/api/parse-document', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rawText: fullText })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Fallo en la API de procesamiento");
+        }
+
+        const data: ConstanciaData = await response.json();
 
         return data;
 

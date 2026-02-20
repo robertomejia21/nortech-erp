@@ -1,26 +1,22 @@
-"use server";
-
+import { NextResponse } from 'next/server';
 import { GoogleGenAI } from "@google/genai";
 
-// We initialize the client inside the Server Action to keep it secure
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export interface ConstanciaData {
-    rfc?: string;
-    razonSocial?: string;
-    zipCode?: string;
-}
-
-/**
- * Server action that takes raw text from a PDF and uses Gemini to extract structured info.
- */
-export async function extractSupplierInfoWithAI(rawText: string): Promise<ConstanciaData> {
-    if (!process.env.GEMINI_API_KEY) {
-        console.error("Missing GEMINI_API_KEY");
-        return {};
-    }
-
+export async function POST(req: Request) {
     try {
+        const body = await req.json();
+        const { rawText } = body;
+
+        if (!rawText) {
+            return NextResponse.json({ error: "No text provided" }, { status: 400 });
+        }
+
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("Missing GEMINI_API_KEY");
+            return NextResponse.json({ error: "Missing API Key Configuration" }, { status: 500 });
+        }
+
         const prompt = `
 Eres un asistente experto en contabilidad mexicana. 
 A continuación te proporcionaré el texto sin formato extraído de un archivo PDF de una 'Constancia de Situación Fiscal' del SAT (México).
@@ -50,7 +46,7 @@ ${rawText}
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
-                temperature: 0.1, // Low temperature for factual extraction
+                temperature: 0.1,
                 responseMimeType: "application/json"
             }
         });
@@ -61,11 +57,14 @@ ${rawText}
             throw new Error("No response from AI");
         }
 
-        const data = JSON.parse(resultText) as ConstanciaData;
-        return data;
+        const data = JSON.parse(resultText);
+        return NextResponse.json(data);
 
-    } catch (error) {
-        console.error("Error extracting document with AI:", error);
-        return {}; // Return empty to not break the frontend
+    } catch (error: any) {
+        console.error("API POST Error extracting document with AI:", error);
+        return NextResponse.json(
+            { error: error?.message || "Failed to process document" },
+            { status: 500 }
+        );
     }
 }
