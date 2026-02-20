@@ -22,12 +22,14 @@ interface SuperAdminDashboardProps {
 }
 
 export default function SuperAdminDashboard({ stats, shortcuts }: SuperAdminDashboardProps) {
-    // 1. Simulate aggregated data for analysis (In a real app, this comes from an API)
+    const parseStatValue = (val: string) => Number(val.replace(/[^0-9.-]+/g, "")) || 0;
+
+    // Parse values from the dynamic stats array passed as prop
     const currentStats = {
-        revenue: 1240500, // From page.tsx mock
-        pendingQuotes: 45,
-        activeDeals: 12,
-        netProfit: 320000
+        revenue: stats[0] ? parseStatValue(stats[0].value) : 0,
+        pendingQuotes: stats[1] ? parseStatValue(stats[1].value) : 0,
+        activeDeals: stats[2] ? parseStatValue(stats[2].value) : 0,
+        netProfit: stats[3] ? parseStatValue(stats[3].value) : 0
     };
 
     // 2. Get AI Sentiment

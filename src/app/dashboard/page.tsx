@@ -17,8 +17,12 @@ import Link from "next/link";
 import SalesDashboard from "@/components/dashboard/SalesDashboard";
 import SuperAdminDashboard from "@/components/dashboard/SuperAdminDashboard";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { formatCurrency } from "@/lib/utils";
 
-const stats = [
+const initialStats = [
     {
         title: "Ingresos Totales",
         value: "$1,240,500",
@@ -53,14 +57,8 @@ const stats = [
     },
 ];
 
-const salesData = [
-    { name: "Sara", value: 65, quota: 165, target: 150, conversion: 52, deals: 12 },
-    { name: "Jaime", value: 85, quota: 135, target: 120, conversion: 65, deals: 15 },
-    { name: "Miguel", value: 70, quota: 98, target: 100, conversion: 43, deals: 10 },
-    { name: "Lisa", value: 75, quota: 118, target: 110, conversion: 56, deals: 13 },
-    { name: "Tomás", value: 60, quota: 72, target: 80, conversion: 33, deals: 8 },
-    { name: "Ana", value: 80, quota: 125, target: 115, conversion: 67, deals: 14 },
-];
+const initialSalesData: any[] = [];
+const initialActivity: any[] = [];
 
 const recentActivity = [
     {
@@ -127,6 +125,77 @@ const shortcuts = {
 
 export default function DashboardPage() {
     const { user, role } = useAuthStore();
+    const [stats, setStats] = useState(initialStats);
+    const [salesData, setSalesData] = useState(initialSalesData);
+    const [recentActivity, setRecentActivity] = useState(initialActivity);
+
+    useEffect(() => {
+        const loadDashboardData = async () => {
+            if (role !== "SUPERADMIN" && role !== "ADMIN") return;
+
+            try {
+                const quotesSnap = await getDocs(collection(db, "quotations"));
+                const ordersSnap = await getDocs(collection(db, "orders"));
+
+                let totalRevenue = 0;
+                let pendingQuotes = 0;
+                let totalPurchases = 0;
+                const salesReps: any = {};
+
+                quotesSnap.docs.forEach((doc) => {
+                    const data = doc.data();
+                    const total = data.financials?.total || 0;
+
+                    if (data.status === "PENDING" || data.status === "DRAFT") {
+                        pendingQuotes++;
+                    } else if (data.status === "ACCEPTED" || data.status === "FINALIZED") {
+                        totalRevenue += total;
+                    }
+
+                    const repId = data.salesRepId || data.userId || "unknown";
+                    if (!salesReps[repId]) {
+                        salesReps[repId] = { name: data.salesRepName || "Agente", total: 0, deals: 0 };
+                    }
+                    salesReps[repId].deals++;
+                    salesReps[repId].total += total;
+                });
+
+                ordersSnap.docs.forEach((doc) => {
+                    const data = doc.data();
+                    const total = data.estimatedTotal || 0;
+                    totalPurchases += total;
+                });
+
+                const netProfit = totalRevenue - totalPurchases;
+
+                setStats([
+                    { ...initialStats[0], value: formatCurrency(totalRevenue), change: "Ejecución" },
+                    { ...initialStats[1], value: pendingQuotes.toString() },
+                    { ...initialStats[2], value: ordersSnap.size.toString(), change: "Activos" },
+                    { ...initialStats[3], value: formatCurrency(netProfit), change: "Estimada" },
+                ]);
+
+                const formattedSalesData = Object.values(salesReps)
+                    .sort((a: any, b: any) => b.total - a.total)
+                    .map((rep: any) => ({
+                        name: rep.name,
+                        value: rep.total,
+                        quota: rep.total / 1000,
+                        target: 500, // example target 500k
+                        conversion: rep.deals > 0 ? 100 : 0,
+                        deals: rep.deals
+                    }));
+
+                setSalesData(formattedSalesData);
+                setRecentActivity([]); // Leave empty so it works when data is added
+
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+            }
+        };
+
+        loadDashboardData();
+    }, [role]);
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -234,7 +303,7 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {salesData.map((person) => {
+                                {salesData.length > 0 && salesData.map((person) => {
                                     const progress = (person.quota / person.target) * 100;
                                     const isOverQuota = progress >= 100;
 
@@ -280,6 +349,11 @@ export default function DashboardPage() {
                                         </Link>
                                     );
                                 })}
+                                {salesData.length === 0 && (
+                                    <div className="col-span-full py-8 text-center text-muted-foreground text-sm">
+                                        No hay información de ventas registrada aún
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -292,7 +366,7 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="space-y-4">
-                                {recentActivity.map((activity, i) => (
+                                {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
                                     <div key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors">
                                         <div className={`w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm font-mono`}>
                                             {activity.avatar}
@@ -306,7 +380,11 @@ export default function DashboardPage() {
                                         </div>
                                         <span className="text-xs text-muted-foreground flex-shrink-0">{activity.time}</span>
                                     </div>
-                                ))}
+                                )) : (
+                                    <div className="py-6 text-center text-muted-foreground text-sm">
+                                        No hay actividad reciente
+                                    </div>
+                                )}
                             </div>
 
                             <Link

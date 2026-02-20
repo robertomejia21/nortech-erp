@@ -163,17 +163,17 @@ export default function AdvancedFinanceDashboard() {
             const projection = months.slice(0, 6).map((m, i) => ({
                 name: m,
                 actual: hist[m]?.sales || 0,
-                projected: (hist[m]?.sales || 100000) * (1 + (i * 0.15))
+                projected: (hist[m]?.sales || 0) * (1 + (i * 0.15))
             }));
             setMonthlyData(projection);
 
             setStats({
-                totalRevenue: revenue || 1240500, // Placeholder if empty for wow factor
-                totalPurchases: purchaseTotal || 840000,
-                netProfit: (revenue - purchaseTotal) || 400500,
-                receivables: receivables || 250000,
-                payables: (purchaseTotal * 0.4) || 120000,
-                avgMargin: marginCount > 0 ? totalMargin / marginCount : 0.32
+                totalRevenue: revenue || 0,
+                totalPurchases: purchaseTotal || 0,
+                netProfit: (revenue - purchaseTotal) || 0,
+                receivables: receivables || 0,
+                payables: (purchaseTotal * 0.4) || 0,
+                avgMargin: marginCount > 0 ? totalMargin / marginCount : 0
             });
 
         } catch (error) {
@@ -349,7 +349,7 @@ export default function AdvancedFinanceDashboard() {
                         </div>
                     </div>
                     <div className="flex-1 w-full space-y-6">
-                        {(vendorData.length > 0 ? vendorData : [{ name: 'Jaime', total: 850000 }, { name: 'Sara', total: 620000 }, { name: 'Miguel', total: 450000 }]).map((v, i) => (
+                        {vendorData.length > 0 && vendorData.map((v, i) => (
                             <div key={i} className="space-y-2">
                                 <div className="flex justify-between text-sm font-bold uppercase tracking-tighter">
                                     <span>{v.name}</span>
@@ -363,6 +363,11 @@ export default function AdvancedFinanceDashboard() {
                                 </div>
                             </div>
                         ))}
+                        {vendorData.length === 0 && (
+                            <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                                No hay datos de ventas registrados
+                            </div>
+                        )}
                     </div>
                     <div className="mt-8 p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl">
                         <p className="text-[10px] font-black text-amber-500 uppercase flex items-center gap-2">
