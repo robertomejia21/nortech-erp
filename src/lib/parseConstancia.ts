@@ -8,6 +8,9 @@ export interface ConstanciaData {
     rfc?: string;
     razonSocial?: string;
     zipCode?: string;
+    calleNumero?: string;
+    ciudad?: string;
+    estado?: string;
 }
 
 export async function parseConstancia(file: File): Promise<ConstanciaData> {

@@ -33,17 +33,23 @@ export async function POST(req: Request) {
 Eres un asistente experto en contabilidad mexicana. 
 A continuación te proporcionaré el texto sin formato extraído de un archivo PDF de una 'Constancia de Situación Fiscal' del SAT (México).
 
-Por favor, extrae exactamente estos 3 campos de texto:
+Por favor, extrae exactamente estos 6 campos de texto basándote en la sección "Datos de Ubicación" o similar:
 1. RFC (R.F.C.)
 2. Razón Social (Denominación/Razón Social o el Nombre completo si es persona física)
 3. Código Postal (CP / ZipCode)
+4. Calle y Número (calleNumero - Combina el nombre de la calle y el número exterior/interior si existe)
+5. Ciudad/Municipio (ciudad)
+6. Estado/Entidad Federativa (estado)
 
 Devuelve tu respuesta ÚNICAMENTE como un objeto JSON válido, sin formato markdown (\`\`\`json) ni texto adicional.
 Las llaves del JSON deben ser exactamente:
 {
   "rfc": "...",
   "razonSocial": "...",
-  "zipCode": "..."
+  "zipCode": "...",
+  "calleNumero": "...",
+  "ciudad": "...",
+  "estado": "..."
 }
 
 Si no encuentras un dato, déjalo como string vacío "".

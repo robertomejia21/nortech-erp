@@ -62,6 +62,9 @@ export default function SupplierForm({ redirectUrl = "/dashboard/admin/suppliers
                         name: prev.name || extractedData.razonSocial || "",
                         rfc: prev.rfc || extractedData.rfc || "",
                         zipCode: prev.zipCode || extractedData.zipCode || "",
+                        street: prev.street || extractedData.calleNumero || "",
+                        city: prev.city || extractedData.ciudad || "",
+                        state: prev.state || extractedData.estado || "",
                     }));
 
                     if (extractedData.rfc || extractedData.razonSocial) {
