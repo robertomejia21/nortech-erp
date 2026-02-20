@@ -17,46 +17,53 @@ export default function AuthProvider({
     const pathname = usePathname();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUser(user);
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                setUser(firebaseUser);
 
-                // OPTIMIZATION: Check cache first for instant load
+                // Check if this is a new user session (different UID than cached)
+                const cachedUid = localStorage.getItem('cachedUid');
                 const cachedRole = localStorage.getItem('userRole');
-                if (cachedRole) {
-                    console.log("Using cached role:", cachedRole);
-                    setRole(cachedRole as any);
+
+                // If user changed, clear stale cache immediately
+                if (cachedUid && cachedUid !== firebaseUser.uid) {
+                    console.log("Different user detected — clearing stale role cache");
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('cachedUid');
+                }
+
+                // Apply cached role only if it belongs to the current user
+                const validCachedRole = (cachedUid === firebaseUser.uid) ? cachedRole : null;
+                if (validCachedRole) {
+                    console.log("Using cached role:", validCachedRole);
+                    setRole(validCachedRole as any);
                     setLoading(false); // Unblock UI immediately
                 }
 
-                // Fetch user role from Firestore (Background update)
+                // Always fetch role from Firestore to verify/update
                 try {
-                    // Create a timeout promise to prevent infinite loading
                     const timeoutPromise = new Promise((_, reject) => {
                         setTimeout(() => reject(new Error('Firestore timeout')), 5000);
                     });
 
-                    // Race the getDoc with the timeout
-                    const userDocPromise = getDoc(doc(db, "users", user.uid));
+                    const userDocPromise = getDoc(doc(db, "users", firebaseUser.uid));
                     const userDoc = await Promise.race([userDocPromise, timeoutPromise]) as any;
 
                     if (userDoc.exists()) {
                         const userRole = userDoc.data().role;
 
-                        // Only update if different or if we didn't have a cache
-                        if (userRole !== cachedRole) {
-                            console.log("Updating role from Firestore:", userRole);
-                            setRole(userRole);
-                            localStorage.setItem('userRole', userRole);
-                        }
+                        // Always apply and cache the real role from Firestore
+                        console.log("Role from Firestore:", userRole);
+                        setRole(userRole);
+                        localStorage.setItem('userRole', userRole);
+                        localStorage.setItem('cachedUid', firebaseUser.uid);
                     } else {
-                        // Handle case where user exists in Auth but not in Firestore
-                        console.error("User document not found");
-                        if (!cachedRole) setRole(null);
+                        console.error("User document not found in Firestore");
+                        if (!validCachedRole) setRole(null);
                     }
                 } catch (error: any) {
                     console.error("Error fetching user role:", error);
-                    // Fallback handled by cachedRole if it existed
+                    // Fallback to cached role if fetch failed
                 }
             } else {
                 setUser(null);
