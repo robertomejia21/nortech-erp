@@ -144,7 +144,7 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                         // Map Quotation Status to CRM Stage
                         let crmStatus = "quotes";
                         if (data.status === "FINALIZED" || data.status === "SENT") crmStatus = "negotiation";
-                        if (data.status === "APPROVED") crmStatus = "won";
+                        if (data.status === "ACCEPTED" || data.status === "ORDERED" || data.status === "APPROVED") crmStatus = "won";
 
                         return {
                             id: doc.id,
