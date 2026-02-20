@@ -597,7 +597,18 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
                                     onDragStart={(e) => handleDragStart(e, item.id, stage.id)}
                                     onDragEnd={handleDragEnd}
                                     onInvite={() => handleInviteClick(item.id, stage.id, item.client)}
-                                    onComplete={() => setActiveMessage(`Actividad completada para ${item.client} ✨`)}
+                                    onComplete={() => {
+                                        if (stage.id === 'leads' || stage.id === 'quotes') {
+                                            const params = new URLSearchParams({ client: item.client, amount: item.amount.toString() });
+                                            window.location.href = `/dashboard/sales/quotes/new?${params.toString()}`;
+                                        } else if (stage.id === 'negotiation') {
+                                            window.location.href = `/dashboard/sales/orders/new`;
+                                        } else if (stage.id === 'won') {
+                                            window.location.href = `/dashboard/finance`;
+                                        } else {
+                                            setActiveMessage(`Actividad completada para ${item.client} ✨`);
+                                        }
+                                    }}
                                     onConvertToQuote={(item) => {
                                         // Redirect to quote form with client name pre-filled if possible
                                         const params = new URLSearchParams({ client: item.client, amount: item.amount.toString() });
