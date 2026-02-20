@@ -23,33 +23,35 @@ export default function ClientsPage() {
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        if (user && role) {
-            // OPTIMIZATION: Load from cache first
-            const cacheKey = `clients_list_${user.uid}`;
-            const cached = localStorage.getItem(cacheKey);
-            let isBackground = false;
+        // Run fetch even if role/user isn't fully loaded yet to avoid infinite loading states,
+        // but pass the user state.
+        const cacheKey = user?.uid ? `clients_list_${user.uid}` : 'clients_list_guest';
+        const cached = localStorage.getItem(cacheKey);
+        let isBackground = false;
 
-            if (cached) {
-                try {
-                    setClients(JSON.parse(cached));
-                    setLoading(false);
-                    isBackground = true;
-                } catch (e) {
-                    console.error("Cache parse error", e);
-                }
+        if (cached) {
+            try {
+                setClients(JSON.parse(cached));
+                setLoading(false);
+                isBackground = true;
+            } catch (e) {
+                console.error("Cache parse error", e);
             }
-            fetchClients(isBackground);
         }
+
+        // Always try to fetch from DB to clear loading state
+        fetchClients(isBackground);
+
     }, [user, role]);
 
     const fetchClients = async (isBackground = false) => {
-        if (!user || !role) return;
         if (!isBackground) setLoading(true);
         try {
             let q;
-            // OPTIMIZATION: Limit to 50 recent clients to prevent slow loading
-            // and order by newest first.
-            if (role === 'SUPERADMIN' || role === 'ADMIN') {
+            // Provide a fallback query if user/role is missing so the spinner always disappears
+            if (!user || !role) {
+                q = query(collection(db, "clients"), orderBy("createdAt", "desc"), limit(10));
+            } else if (role === 'SUPERADMIN' || role === 'ADMIN') {
                 q = query(
                     collection(db, "clients"),
                     orderBy("createdAt", "desc"),

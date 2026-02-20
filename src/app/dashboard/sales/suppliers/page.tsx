@@ -21,13 +21,22 @@ export default function SuppliersPage() {
     const { role } = useAuthStore();
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // Automatically timeout loading spinner if DB doesn't respond in 5 seconds
+        const timeout = setTimeout(() => {
+            if (loading) setLoading(false);
+        }, 5000);
+
         fetchSuppliers();
+
+        return () => clearTimeout(timeout);
     }, []);
 
     const fetchSuppliers = async () => {
         setLoading(true);
+        setError(null);
         try {
             const q = query(collection(db, "suppliers"), orderBy("name", "asc"));
             const querySnapshot = await getDocs(q);
@@ -38,6 +47,7 @@ export default function SuppliersPage() {
             setSuppliers(list);
         } catch (error) {
             console.error("Error fetching suppliers:", error);
+            setError("No se pudieron cargar los proveedores. Intenta recargar la página.");
         } finally {
             setLoading(false);
         }
@@ -111,7 +121,13 @@ export default function SuppliersPage() {
                     </div>
                 ))}
 
-                {suppliers.length === 0 && !loading && (
+                {error && !loading && (
+                    <div className="col-span-full py-16 text-center card-premium border-dashed border-red-500/20 bg-red-500/5">
+                        <p className="text-red-400">{error}</p>
+                    </div>
+                )}
+
+                {suppliers.length === 0 && !loading && !error && (
                     <div className="col-span-full py-16 text-center card-premium border-dashed bg-transparent">
                         <Truck className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-20" />
                         <p className="text-muted-foreground">No hay proveedores registrados aún.</p>
@@ -124,6 +140,7 @@ export default function SuppliersPage() {
                 {loading && (
                     <div className="col-span-full py-16 text-center">
                         <div className="animate-spin w-8 h-8 border-2 border-accent-blue border-t-transparent rounded-full mx-auto" />
+                        <p className="text-muted-foreground mt-4 text-sm animate-pulse">Cargando proveedores...</p>
                     </div>
                 )}
             </div>
