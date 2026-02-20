@@ -256,25 +256,27 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
         e.preventDefault();
         if (!user) return;
 
+        // Capture current data before clearing form
+        const leadData = {
+            client: newLeadData.client,
+            amount: Number(newLeadData.amount),
+            task: newLeadData.task || "Contacto inicial",
+            priority: newLeadData.priority,
+            status: shouldRedirect ? "quotes" : "leads",
+            progress: shouldRedirect ? 40 : 10,
+            collaborators: [],
+            salesRepId: user.uid,
+            salesRepName: user.displayName || user.email || "Agente",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
+
+        // UI OPTIMIZATION: Close modal immediately giving instant feedback
+        setIsNewLeadModalOpen(false);
+        setNewLeadData({ client: "", amount: "", task: "", priority: "medium" });
+
         try {
-            const leadData = {
-                client: newLeadData.client,
-                amount: Number(newLeadData.amount),
-                task: newLeadData.task || "Contacto inicial",
-                priority: newLeadData.priority,
-                status: shouldRedirect ? "quotes" : "leads",
-                progress: shouldRedirect ? 40 : 10,
-                collaborators: [],
-                salesRepId: user.uid,
-                salesRepName: user.displayName || user.email,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp()
-            };
-
             await addDoc(collection(db, "leads"), leadData);
-
-            setIsNewLeadModalOpen(false);
-            setNewLeadData({ client: "", amount: "", task: "", priority: "medium" });
 
             if (shouldRedirect) {
                 const params = new URLSearchParams({ client: leadData.client, amount: leadData.amount.toString() });
@@ -285,7 +287,15 @@ export default function CRMPipeline({ onTotalsUpdate }: CRMPipelineProps) {
             }
         } catch (error) {
             console.error("Error creating lead:", error);
-            alert("Error al crear la oportunidad.");
+            alert("Error al crear la oportunidad, revisa tu conexión.");
+            // Re-open in case of failure to prevent data loss
+            setIsNewLeadModalOpen(true);
+            setNewLeadData({
+                client: leadData.client,
+                amount: leadData.amount.toString(),
+                task: leadData.task === "Contacto inicial" ? "" : leadData.task,
+                priority: leadData.priority as any
+            });
         }
     };
 
