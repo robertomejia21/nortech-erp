@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
     Loader2, Plus, Trash2, Calculator, Users, Package,
     FileText, Send, CheckCircle2, ChevronRight, ChevronLeft,
-    Printer, Download, Search, X, Check, Truck, Edit2, Coins, HelpCircle, AlertTriangle
+    Printer, Download, Search, X, Check, Truck, Edit2, Coins, HelpCircle, AlertTriangle, Briefcase
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { generateQuotePDF } from "@/lib/pdfGenerator";
@@ -72,6 +72,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
     const [currency, setCurrency] = useState<"MXN" | "USD">("MXN");
     const [notes, setNotes] = useState("");
     const [folio, setFolio] = useState("");
+    const [billingCompany, setBillingCompany] = useState("Nortech");
     const [exchangeRate, setExchangeRate] = useState(1);
     const [globalSettings, setGlobalSettings] = useState({
         ivaRate: 0.16,
@@ -126,6 +127,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                         setCurrency(q.financials?.currency || "MXN");
                         setTaxRate(q.financials?.taxRate || 0.08);
                         setFolio(q.folio || "");
+                        setBillingCompany(q.billingCompany || "Nortech");
                         setExchangeRate(q.financials?.exchangeRate || 1);
                     }
                 }
@@ -407,6 +409,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                 status: status === 'SENT' ? 'FINALIZED' : 'DRAFT',
                 createdAt: serverTimestamp(),
                 folio: finalFolio,
+                billingCompany,
             };
 
             if (initialId) {
@@ -537,6 +540,21 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                             {!newClientMode ? (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                            <Briefcase className="w-4 h-4 text-primary" />
+                                            Empresa que Factura / Cotiza
+                                        </label>
+                                        <select
+                                            className="input-dark w-full p-3 text-sm font-medium border-primary/30"
+                                            value={billingCompany}
+                                            onChange={(e) => setBillingCompany(e.target.value)}
+                                        >
+                                            <option value="Nortech">Nortech</option>
+                                            <option value="GT Packing">GT Packing</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2 pt-4 border-t border-border/50">
                                         <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Buscar Cliente</label>
                                         <div className="relative">
                                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
