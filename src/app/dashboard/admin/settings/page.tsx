@@ -31,7 +31,7 @@ export default function BusinessSettingsPage() {
         importRate: 0.10,
         defaultMargin: 0.30,
         exchangeRate: 18.20,
-        companyName: "Nortech S.A. de C.V.",
+        companyName: "North Tech S.A. de C.V.",
         currency: "MXN"
     });
     const [loading, setLoading] = useState(true);

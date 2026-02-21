@@ -140,7 +140,7 @@ export default function DashboardLayout({
                         />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-foreground tracking-tight">Nortech</h2>
+                        <h2 className="text-xl font-bold text-foreground tracking-tight">North Tech</h2>
                         <p className="text-xs text-muted-foreground">ERP & CRM Sistema</p>
                     </div>
                 </div>

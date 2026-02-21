@@ -70,7 +70,7 @@ export default function ClientForm() {
                             Registrar <span className="text-primary italic">Nuevo Cliente</span>
                         </h2>
                         <p className="text-muted-foreground text-sm font-medium">
-                            Completa los datos fiscales para integrar al nuevo prospecto a la red de Nortech.
+                            Completa los datos fiscales para integrar al nuevo prospecto a la red de North Tech.
                         </p>
                     </div>
 

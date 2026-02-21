@@ -279,7 +279,7 @@ export default function QuoteDetailPage() {
                     <div className="flex items-center gap-4">
                         <div className="h-16 w-16 bg-slate-900 text-white flex items-center justify-center font-bold text-3xl">N</div>
                         <div>
-                            <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-900">Nortech</h1>
+                            <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-900">North Tech</h1>
                             <p className="text-sm text-slate-500 font-medium">INDUSTRIAL SOLUTIONS</p>
                         </div>
                     </div>
@@ -316,7 +316,7 @@ export default function QuoteDetailPage() {
                             </div>
                             <div className="flex justify-end gap-4">
                                 <span>Atención:</span>
-                                <span className="font-bold text-slate-900">{user?.displayName || "Ventas Nortech"}</span>
+                                <span className="font-bold text-slate-900">{user?.displayName || "Ventas North Tech"}</span>
                             </div>
                         </div>
                     </div>
@@ -366,7 +366,7 @@ export default function QuoteDetailPage() {
                         <div className="mt-8 pt-8 border-t border-slate-100">
                             <h4 className="font-bold text-slate-900 mb-2">Información Bancaria</h4>
                             <p className="text-xs text-slate-500">Banco: BBVA Bancomer | Cuenta: 0123456789 | CLABE: 012345678901234567</p>
-                            <p className="text-xs text-slate-500 mt-1">Favor de enviar comprobante de pago a cobranza@nortech.com</p>
+                            <p className="text-xs text-slate-500 mt-1">Favor de enviar comprobante de pago a cobranza@northtech.com</p>
                         </div>
                     </div>
 
@@ -394,7 +394,7 @@ export default function QuoteDetailPage() {
                 {/* Stamp */}
                 <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-10 pointer-events-none">
                     <div className="w-64 h-64 border-8 border-slate-900 rounded-full flex items-center justify-center rotate-12">
-                        <span className="text-4xl font-black uppercase text-slate-900">NORTECH ORIGINAL</span>
+                        <span className="text-4xl font-black uppercase text-slate-900">NORTH TECH ORIGINAL</span>
                     </div>
                 </div>
             </div>

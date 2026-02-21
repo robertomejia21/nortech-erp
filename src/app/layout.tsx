@@ -8,8 +8,8 @@ import ThemeWrapper from "@/components/providers/ThemeWrapper";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-    title: "Nortech ERP/CRM",
-    description: "Sistema de gestión integral para Nortech",
+    title: "North Tech ERP/CRM",
+    description: "Sistema de gestión integral para North Tech",
 };
 
 export default function RootLayout({

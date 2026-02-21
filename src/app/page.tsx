@@ -55,7 +55,7 @@ export default function Home() {
                                 className="object-contain relative"
                             />
                         </div>
-                        <h1 className="text-3xl font-bold text-foreground">Nortech</h1>
+                        <h1 className="text-3xl font-bold text-foreground">North Tech</h1>
                     </div>
                     <p className="text-muted-foreground">Tu Aliado Estratégico Industrial</p>
                 </div>
@@ -106,7 +106,7 @@ export default function Home() {
                                 className="object-contain relative"
                             />
                         </div>
-                        <h1 className="text-2xl font-bold text-foreground">Nortech ERP</h1>
+                        <h1 className="text-2xl font-bold text-foreground">North Tech ERP</h1>
                     </div>
 
                     <div className="card-premium p-8">

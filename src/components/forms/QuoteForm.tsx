@@ -72,7 +72,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
     const [currency, setCurrency] = useState<"MXN" | "USD">("MXN");
     const [notes, setNotes] = useState("");
     const [folio, setFolio] = useState("");
-    const [billingCompany, setBillingCompany] = useState("Nortech");
+    const [billingCompany, setBillingCompany] = useState("North Tech");
     const [exchangeRate, setExchangeRate] = useState(1);
     const [globalSettings, setGlobalSettings] = useState({
         ivaRate: 0.16,
@@ -127,7 +127,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                         setCurrency(q.financials?.currency || "MXN");
                         setTaxRate(q.financials?.taxRate || 0.08);
                         setFolio(q.folio || "");
-                        setBillingCompany(q.billingCompany || "Nortech");
+                        setBillingCompany(q.billingCompany || "North Tech");
                         setExchangeRate(q.financials?.exchangeRate || 1);
                     }
                 }
@@ -549,7 +549,7 @@ export default function QuoteForm({ initialId }: { initialId?: string }) {
                                             value={billingCompany}
                                             onChange={(e) => setBillingCompany(e.target.value)}
                                         >
-                                            <option value="Nortech">Nortech</option>
+                                            <option value="North Tech">North Tech</option>
                                             <option value="GT Packing">GT Packing</option>
                                         </select>
                                     </div>
