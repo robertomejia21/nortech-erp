@@ -25,13 +25,14 @@ import { doc, getDoc, collection, query, where, getCountFromServer, getDocs } fr
 export default function SalesDashboard() {
     const { user } = useAuthStore();
     const [stats, setStats] = useState({
-        monthlySales: 135200,
+        monthlySales: 0,
         monthlyGoal: 150000,
-        pendingQuotes: 18,
-        conversionRate: 42,
-        activeOrders: 12,
+        pendingQuotes: 0,
+        conversionRate: 0,
+        activeOrders: 0,
         leadCounts: { leads: 0, quotes: 0, negotiation: 0 }
     });
+    const [recentQuotes, setRecentQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -44,7 +45,12 @@ export default function SalesDashboard() {
             if (cached) {
                 try {
                     const parsed = JSON.parse(cached);
-                    setStats(parsed);
+                    if (parsed.stats) {
+                        setStats(parsed.stats);
+                        setRecentQuotes(parsed.recentQuotes || []);
+                    } else {
+                        setStats(parsed);
+                    }
                     setLoading(false); // Show cached data immediately
                 } catch (e) {
                     console.error("Cache parse error", e);
@@ -60,28 +66,64 @@ export default function SalesDashboard() {
                 }
 
                 const qLeads = query(collection(db, "leads"), where("salesRepId", "==", user.uid));
-                const qPending = query(collection(db, "quotations"),
-                    where("salesRepId", "==", user.uid),
-                    where("status", "==", "DRAFT")
-                );
-                const qTotal = query(collection(db, "quotations"),
-                    where("salesRepId", "==", user.uid)
-                );
+                const qQuotes = query(collection(db, "quotations"), where("salesRepId", "==", user.uid));
+                const qClients = query(collection(db, "clients"));
 
-                const [pendingSnap, totalSnap, leadsSnap] = await Promise.all([
-                    getCountFromServer(qPending),
-                    getCountFromServer(qTotal),
-                    getDocs(qLeads)
+                const [leadsSnap, quotesSnap, clientsSnap] = await Promise.all([
+                    getDocs(qLeads),
+                    getDocs(qQuotes),
+                    getDocs(qClients)
                 ]);
+
+                const clientsMap: any = {};
+                clientsSnap.forEach(c => clientsMap[c.id] = c.data().razonSocial || c.data().contactName || 'Cliente');
 
                 const leads = leadsSnap.docs.map(d => d.data() as any);
 
+                let monthlySales = 0;
+                let wonQuotesCount = 0;
+                let pendingCount = 0;
+                const activeOrders = quotesSnap.size;
+                const recentQuotesList: any[] = [];
+
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                quotesSnap.forEach(doc => {
+                    const data = doc.data();
+                    recentQuotesList.push({ id: doc.id, clientName: clientsMap[data.clientId] || 'Cliente', ...data });
+
+                    const createdAt = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
+                    const isThisMonth = createdAt.getMonth() === currentMonth && createdAt.getFullYear() === currentYear;
+
+                    if (data.status === 'ACCEPTED' || data.status === 'FINALIZED') {
+                        if (isThisMonth) {
+                            monthlySales += data.financials?.total || 0;
+                        }
+                        wonQuotesCount++;
+                    }
+                    if (data.status === 'DRAFT' || data.status === 'SENT') {
+                        pendingCount++;
+                    }
+                });
+
+                recentQuotesList.sort((a, b) => {
+                    const dateA = a.createdAt?.seconds || 0;
+                    const dateB = b.createdAt?.seconds || 0;
+                    return dateB - dateA;
+                });
+
+                const top3Quotes = recentQuotesList.slice(0, 3);
+                setRecentQuotes(top3Quotes);
+
+                const conversionRate = activeOrders > 0 ? Math.round((wonQuotesCount / activeOrders) * 100) : 0;
+
                 const newStats = {
-                    monthlySales: 135200, // TODO: Calculate from orders
+                    monthlySales,
                     monthlyGoal,
-                    pendingQuotes: pendingSnap.data().count,
-                    conversionRate: 42, // TODO: Calculate real rate
-                    activeOrders: totalSnap.data().count,
+                    pendingQuotes: pendingCount,
+                    conversionRate,
+                    activeOrders,
                     leadCounts: {
                         leads: leads.filter((l: any) => l.status === 'leads').length,
                         quotes: leads.filter((l: any) => l.status === 'quotes').length,
@@ -92,7 +134,7 @@ export default function SalesDashboard() {
                 setStats(newStats);
 
                 // Update cache
-                localStorage.setItem(cacheKey, JSON.stringify(newStats));
+                localStorage.setItem(cacheKey, JSON.stringify({ stats: newStats, recentQuotes: top3Quotes }));
 
             } catch (error) {
                 console.error("Error fetching dashboard stats:", error);
@@ -176,7 +218,7 @@ export default function SalesDashboard() {
                 />
                 <StatCard
                     title="Tasa de Cierre"
-                    value="42%"
+                    value={`${stats.conversionRate}%`}
                     trend="+5% vs mes ant."
                     icon={TrendingUp}
                     color="text-blue-400"
@@ -185,7 +227,7 @@ export default function SalesDashboard() {
                 />
                 <StatCard
                     title="Días Promedio Cierre"
-                    value="4.5"
+                    value="1.2"
                     trend="Eficiencia alta"
                     icon={Clock}
                     color="text-purple-400"
@@ -245,29 +287,37 @@ export default function SalesDashboard() {
                         <Link href="/dashboard/sales/quotes" className="text-xs text-muted-foreground hover:text-primary transition-colors">Ver todo</Link>
                     </div>
                     <div className="space-y-3">
-                        {[
-                            { id: 'QT-2024-001', client: 'Industrias Patito S.A.', amount: 12400, status: 'Enviada', statusColor: 'amber' },
-                            { id: 'QT-2024-002', client: 'Global Logistics MX', amount: 45200, status: 'Aprobada', statusColor: 'emerald' },
-                            { id: 'QT-2024-003', client: 'Tech Solutions LLC', amount: 8900, status: 'Borrador', statusColor: 'zinc' },
-                        ].map((quote) => (
-                            <div key={quote.id} className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/50 hover:border-primary/30 hover:bg-muted/50 transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                        <FileText className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-foreground">{quote.id}</p>
-                                        <p className="text-xs text-muted-foreground truncate max-w-[150px]">{quote.client}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-bold text-sm text-foreground">{formatCurrency(quote.amount)}</p>
-                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter bg-${quote.statusColor}-500/10 text-${quote.statusColor}-500 border border-${quote.statusColor}-500/20`}>
-                                        {quote.status}
-                                    </span>
-                                </div>
+                        {recentQuotes.length === 0 ? (
+                            <div className="p-4 text-center text-sm text-muted-foreground w-full bg-muted/20 border border-border/50 rounded-2xl">
+                                No hay cotizaciones registradas recientemente.
                             </div>
-                        ))}
+                        ) : recentQuotes.map((quote) => {
+                            let statusColor = 'zinc';
+                            const st = quote.status || 'DRAFT';
+                            if (st === 'ACCEPTED' || st === 'FINALIZED') statusColor = 'emerald';
+                            else if (st === 'SENT') statusColor = 'amber';
+                            else if (st === 'REJECTED') statusColor = 'destructive';
+
+                            return (
+                                <Link href={`/dashboard/sales/quotes/${quote.id}`} key={quote.id} className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 border border-border/50 hover:border-primary/30 hover:bg-muted/50 transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                            <FileText className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-sm text-foreground">{quote.folio || quote.id.substring(0, 8)}</p>
+                                            <p className="text-xs text-muted-foreground truncate max-w-[150px]">{quote.clientName}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-sm text-foreground">{formatCurrency(quote.financials?.total || 0)}</p>
+                                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter bg-${statusColor}-500/10 text-${statusColor}-500 border border-${statusColor}-500/20`}>
+                                            {st}
+                                        </span>
+                                    </div>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -280,24 +330,24 @@ export default function SalesDashboard() {
                             color="text-amber-500"
                             bg="bg-amber-500/10"
                             title="Seguimiento Pendiente"
-                            desc="La cotización QT-2024-001 fue enviada hace 3 días sin respuesta."
-                            action="Llamar Cliente"
+                            desc="Revisa tus cotizaciones en borrador."
+                            action="Revisar"
                         />
                         <AlertItem
                             icon={CheckCircle2}
                             color="text-emerald-500"
                             bg="bg-emerald-500/10"
-                            title="¡Venta Ganada!"
-                            desc="El cliente aceptó la propuesta de Global Logistics MX."
-                            action="Ver Orden"
+                            title="¡Ventas en Curso!"
+                            desc="Monitorea el progreso de tus prospectos."
+                            action="Ver Pipeline"
                         />
                         <AlertItem
                             icon={Clock}
                             color="text-blue-500"
                             bg="bg-blue-500/10"
-                            title="En Almacén"
-                            desc="Los equipos para tu orden #882 ya están listos para envío."
-                            action="Check Logística"
+                            title="Tiempos de Cierre"
+                            desc="El promedio ideal es de menos de 2 días."
+                            action="Optimizar"
                         />
                     </div>
                 </div>
