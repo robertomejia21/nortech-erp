@@ -52,16 +52,9 @@ export default function ClientsPage() {
             // Provide a fallback query if user/role is missing so the spinner always disappears
             if (!user || !role) {
                 q = query(collection(db, "clients"), orderBy("createdAt", "desc"), limit(10));
-            } else if (role === 'SUPERADMIN' || role === 'ADMIN') {
-                q = query(
-                    collection(db, "clients"),
-                    orderBy("createdAt", "desc"),
-                    limit(50)
-                );
             } else {
                 q = query(
                     collection(db, "clients"),
-                    where("salesRepId", "==", user.uid),
                     orderBy("createdAt", "desc"),
                     limit(50)
                 );
