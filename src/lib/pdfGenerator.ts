@@ -2,29 +2,20 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { formatCurrency } from './utils';
-// import { logoBase64 } from './assets/logo'; // Assuming we might have a logo, or we keep the placeholder
+import { logoBase64 } from './assets/logo';
 
 export const generateQuotePDF = (quote: any, client: any, user: any) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
 
     // --- Header Section ---
-    // Logo Placeholder (Triangle shape from image simulation)
-    // doc.addImage(logoBase64, 'PNG', 10, 10, 30, 30); 
-    // Drawing a placeholder logo manually if no image
-    doc.setFillColor(0, 0, 0);
-    doc.triangle(25, 10, 15, 30, 35, 30, 'F');
-    doc.setFillColor(255, 255, 255);
-    doc.triangle(25, 18, 20, 28, 30, 28, 'F');
+    // Render the Black Logo
+    doc.addImage(logoBase64, 'PNG', 10, 10, 42, 18);
 
     doc.setFontSize(22);
     doc.setFont('times', 'bold');
     doc.setTextColor(0, 0, 0);
     doc.text("North Tech Supplier S. de R.L. de C.V.", 60, 20);
-
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text("NORTH TECH", 10, 38);
 
     // Company Info
     doc.setFontSize(9);

@@ -277,11 +277,7 @@ export default function QuoteDetailPage() {
                 {/* Header */}
                 <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
                     <div className="flex items-center gap-4">
-                        <div className="h-16 w-16 bg-slate-900 text-white flex items-center justify-center font-bold text-3xl">N</div>
-                        <div>
-                            <h1 className="text-3xl font-bold uppercase tracking-tight text-slate-900">North Tech</h1>
-                            <p className="text-sm text-slate-500 font-medium">INDUSTRIAL SOLUTIONS</p>
-                        </div>
+                        <img src="/logo_black.png" alt="North Tech Logo" className="h-20 object-contain" />
                     </div>
                     <div className="text-right">
                         <h2 className="text-4xl font-extrabold text-slate-200">COTIZACIÓN</h2>
