@@ -29,6 +29,7 @@ type UserProfile = {
     role: string;
     photoURL: string;
     phoneNumber?: string;
+    monthlyGoal?: number;
     preferences: {
         theme: "light" | "dark" | "system" | "theme-hub";
         accentColor: "blue" | "purple" | "emerald" | "amber";
@@ -46,6 +47,7 @@ const defaultProfile: UserProfile = {
     email: "",
     role: "",
     photoURL: "",
+    monthlyGoal: 0,
     preferences: {
         theme: "system",
         accentColor: "blue",
@@ -83,6 +85,7 @@ export default function ProfilePage() {
                         email: user.email || "",
                         role: role || "SALES",
                         photoURL: user.photoURL || "",
+                        monthlyGoal: 0,
                         preferences: defaultProfile.preferences
                     };
                     setProfile(initialData);
@@ -273,6 +276,16 @@ export default function ProfilePage() {
                                     onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
                                     className="input-dark w-full"
                                     placeholder="+52 (000) 000-0000"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1.5 block">Meta Mensual ($ MXN)</label>
+                                <input
+                                    type="number"
+                                    value={profile.monthlyGoal || ""}
+                                    onChange={(e) => setProfile({ ...profile, monthlyGoal: Number(e.target.value) })}
+                                    className="input-dark w-full"
+                                    placeholder="Ej. 150000"
                                 />
                             </div>
                             <div className="md:col-span-2">

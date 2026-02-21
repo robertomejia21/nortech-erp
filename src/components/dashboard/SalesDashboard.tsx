@@ -13,14 +13,17 @@ import {
     TrendingUp,
     DollarSign,
     Users,
-    ArrowRight
+    ArrowRight,
+    Loader2,
+    Check,
+    Rocket
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { db } from "@/lib/firebase";
 
-import { doc, getDoc, collection, query, where, getCountFromServer, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getCountFromServer, getDocs } from "firebase/firestore";
 
 export default function SalesDashboard() {
     const { user } = useAuthStore();
@@ -34,6 +37,10 @@ export default function SalesDashboard() {
     });
     const [recentQuotes, setRecentQuotes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Config Goal State
+    const [configGoal, setConfigGoal] = useState("");
+    const [savingGoal, setSavingGoal] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -60,9 +67,9 @@ export default function SalesDashboard() {
             try {
                 // Fetch User Meta (Goal)
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                let monthlyGoal = 150000;
-                if (userDoc.exists()) {
-                    monthlyGoal = userDoc.data().monthlyGoal || 150000;
+                let monthlyGoal = 0;
+                if (userDoc.exists() && userDoc.data().monthlyGoal) {
+                    monthlyGoal = userDoc.data().monthlyGoal;
                 }
 
                 const qLeads = query(collection(db, "leads"), where("salesRepId", "==", user.uid));
@@ -156,6 +163,69 @@ export default function SalesDashboard() {
                 <div className="flex flex-col items-center gap-4">
                     <Zap className="w-10 h-10 animate-pulse text-accent-blue" />
                     <p className="text-muted-foreground animate-pulse font-medium">Personalizando tu panel...</p>
+                </div>
+            </div>
+        );
+    }
+
+    const handleSaveGoal = async () => {
+        if (!user?.uid || !configGoal || isNaN(Number(configGoal))) return;
+        setSavingGoal(true);
+        try {
+            const numGoal = Number(configGoal);
+            await updateDoc(doc(db, "users", user.uid), { monthlyGoal: numGoal });
+            setStats(prev => ({ ...prev, monthlyGoal: numGoal }));
+            const cacheKey = `sales_stats_${user.uid}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                parsed.stats.monthlyGoal = numGoal;
+                localStorage.setItem(cacheKey, JSON.stringify(parsed));
+            }
+        } catch (error) {
+            console.error("Error setting goal:", error);
+            alert("Error al guardar la meta.");
+        } finally {
+            setSavingGoal(false);
+        }
+    };
+
+    if (stats.monthlyGoal === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="card-premium p-10 max-w-md w-full text-center relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-zinc-900 via-background to-background">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32" />
+
+                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-[0_0_30px_rgba(var(--primary),0.2)]">
+                        <Target className="w-10 h-10 text-primary" />
+                    </div>
+                    <h2 className="text-3xl font-black text-foreground mb-3 relative z-10 tracking-tight">¡Define tu Meta!</h2>
+                    <p className="text-muted-foreground mb-8 text-sm relative z-10 leading-relaxed">
+                        Para poder medir tu rendimiento y ganar misiones diarias, necesitas configurar tu meta mensual de ventas. Sé ambicioso.
+                    </p>
+
+                    <div className="space-y-4 relative z-10 text-left">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meta en MXN</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">$</span>
+                            <input
+                                type="number"
+                                autoFocus
+                                value={configGoal}
+                                onChange={(e) => setConfigGoal(e.target.value)}
+                                placeholder="Ej. 150000"
+                                className="input-dark w-full pl-8 py-4 text-xl font-black bg-zinc-900/50 border-primary/30 focus:border-primary text-foreground"
+                            />
+                        </div>
+                        <button
+                            onClick={handleSaveGoal}
+                            disabled={savingGoal || !configGoal}
+                            className="btn-primary w-full py-4 rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 mt-2"
+                        >
+                            {savingGoal ? <Loader2 className="w-5 h-5 animate-spin" /> : <Rocket className="w-5 h-5" />}
+                            ¡Comenzar a Vender!
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -321,33 +391,36 @@ export default function SalesDashboard() {
                     </div>
                 </div>
 
-                {/* Tracking / Alerts */}
-                <div className="card-premium p-6 bg-card">
-                    <h3 className="text-lg font-bold text-foreground mb-6">Estado de mis Procesos</h3>
+                {/* Misiones Diarias / Gamification */}
+                <div className="card-premium p-6 bg-card border-x-4 border-l-primary border-r-transparent">
+                    <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        Tus Misiones Diarias
+                    </h3>
                     <div className="space-y-4">
                         <AlertItem
-                            icon={AlertCircle}
-                            color="text-amber-500"
-                            bg="bg-amber-500/10"
-                            title="Seguimiento Pendiente"
-                            desc="Revisa tus cotizaciones en borrador."
-                            action="Revisar"
+                            icon={Check}
+                            color={isGoalReached ? "text-success" : "text-amber-500"}
+                            bg={isGoalReached ? "bg-success/10" : "bg-amber-500/10"}
+                            title="Misión #1: El Objetivo Grande"
+                            desc={isGoalReached ? "¡Impresionante! Has roto tu meta del mes." : `Aún faltan ${formatCurrency(remaining)} para tu meta. Envía más cotizaciones.`}
+                            action={isGoalReached ? "¡Celebrar!" : "Prospectar"}
                         />
                         <AlertItem
-                            icon={CheckCircle2}
-                            color="text-emerald-500"
-                            bg="bg-emerald-500/10"
-                            title="¡Ventas en Curso!"
-                            desc="Monitorea el progreso de tus prospectos."
-                            action="Ver Pipeline"
+                            icon={stats.pendingQuotes > 0 ? Clock : CheckCircle2}
+                            color={stats.pendingQuotes > 0 ? "text-purple-500" : "text-emerald-500"}
+                            bg={stats.pendingQuotes > 0 ? "bg-purple-500/10" : "bg-emerald-500/10"}
+                            title="Misión #2: Cotizaciones Pendientes"
+                            desc={stats.pendingQuotes > 0 ? `Tienes ${stats.pendingQuotes} cotizaciones sin cerrar. Usa WhatsApp para dar seguimiento.` : "No tienes cotizaciones atrasadas. ¡Excelente trabajo!"}
+                            action={stats.pendingQuotes > 0 ? "Dar Seguimiento" : "Crear Nueva"}
                         />
                         <AlertItem
-                            icon={Clock}
+                            icon={TrendingUp}
                             color="text-blue-500"
                             bg="bg-blue-500/10"
-                            title="Tiempos de Cierre"
-                            desc="El promedio ideal es de menos de 2 días."
-                            action="Optimizar"
+                            title="El Consejo del Coach IA"
+                            desc={`Tu tasa de cierre es del ${stats.conversionRate}%. Si llamas a prospectos entre 10AM y 12PM, esta probabilidad aumenta un 20%.`}
+                            action="Anotado"
                         />
                     </div>
                 </div>
