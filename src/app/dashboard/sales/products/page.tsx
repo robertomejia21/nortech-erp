@@ -257,7 +257,7 @@ export default function ProductsPage() {
                         </div>
 
                         <div className="mb-4">
-                            <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                            <h3 className="font-bold text-[15px] leading-snug text-foreground group-hover:text-primary transition-colors pr-2 break-words">
                                 {product.name}
                             </h3>
                             <p className="text-xs font-mono text-muted-foreground uppercase">{product.sku || "Sin SKU"}</p>
